@@ -3,6 +3,7 @@ import json
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import text
 from app.models import SensorData, User
+from app.extensions import SessionLocal
 import asyncio
 import hashlib
 
