@@ -4,5 +4,7 @@
 env
 .venv
 venv
+./.venv
+./venv
 .DS_Store__pycache__/
 *.pyc
