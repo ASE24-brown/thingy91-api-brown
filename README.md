@@ -4,13 +4,15 @@ Welcome! This is the Backend-API for the Nordic Thingy:91, an easy-to-use batter
 
 ## Table of Contents
 
-- [Introduction](#introduction)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Technologies Used](#technologies-used)
-- [Contributing](#contributing)
-- [License](#license)
+- [Nordic Thingy:91 Backend-API](#nordic-thingy91-backend-api)
+  - [Table of Contents](#table-of-contents)
+  - [Introduction](#introduction)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Usage](#usage)
+  - [Testing](#testing)
+  - [Technologies Used](#technologies-used)
+  - [License](#license)
 
 ## Introduction
 
@@ -51,6 +53,10 @@ python -m app.extensions init_db
 python run.py
 
 3. The serevr will start and listen for MQTT messages and HTTP requests.
+
+## Testing
+
+In the root folder run PYTHONPATH=, pytest
 
 ## Technologies Used
 
