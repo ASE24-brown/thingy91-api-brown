@@ -4,6 +4,8 @@ from sqlalchemy.orm import sessionmaker
 from app.extensions import Base
 from app.models import User, SensorData
 
+# Create temporary database using fixtures
+
 # Use an in-memory SQLite database for testing
 TEST_DATABASE_URL = "sqlite:///:memory:"
 

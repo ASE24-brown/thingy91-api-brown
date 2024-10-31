@@ -39,8 +39,10 @@ async def insert_data(session: AsyncSession, data: dict, user_id: int):
         user = await session.get(User, user_id)
         if not user:
             user = User(id=user_id, username=str(user_id), email=f"{user_id}@example.com")
-            session.add(user)
+            print("Inserting data...")
+            await session.add(user)
             await session.commit()
+            print("Data inserted.")
 
         sensor_data = SensorData(
             appId=data['appId'],
@@ -49,8 +51,10 @@ async def insert_data(session: AsyncSession, data: dict, user_id: int):
             ts=int(data['ts']),
             user_id=user_id  # user_id is the foreign key
         )
-        session.add(sensor_data)
+        print("Inserting data...")
+        await session.add(sensor_data)
         await session.commit()
+        print("Data inserted.")
     except ValueError as e:
         print(f"Error inserting data: {e}")
 
