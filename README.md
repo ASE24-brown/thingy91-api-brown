@@ -37,10 +37,9 @@ Before you begin, ensure you have met the following requirements:
     ```sh
     python -m venv venv
     source venv/bin/activate
-  # On Windows use 
-  
-    ```shv
-    env\Scripts\activate`
+    
+    # On Windows use     
+    env\Scripts\activate
 
 3. Install the required packages:
    ```sh
