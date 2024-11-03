@@ -34,23 +34,27 @@ Before you begin, ensure you have met the following requirements:
    cd thingy91-backend-api
 
 2. Create a virtual environment:
-
-python -m venv venv
-source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+    ```sh
+    python -m venv venv
+    source venv/bin/activate
+  # On Windows use 
+  
+    ```shv
+    env\Scripts\activate`
 
 3. Install the required packages:
-
-pip install -r requirements.txt
+   ```sh
+   pip install -r requirements.txt
 
 ## Usage
 
 1. Initialize the database:
-
-python -m app.extensions init_db
+   ```sh
+    python -m app.extensions init_db
 
 2. Start the MQTT listener and the web server:
-
-python run.py
+   ```sh
+    python run.py
 
 3. The serevr will start and listen for MQTT messages and HTTP requests.
 
@@ -59,7 +63,7 @@ python run.py
 In the root folder run PYTHONPATH=, pytest
 
 ## Technologies Used
-
+   ```sh
 Aiohttp: A Python library for building asynchronous web applications.
 SQLAlchemy: A SQL toolkit and Object-Relational Mapping (ORM) library for Python.
 Paho MQTT: A Python client library for the MQTT protocol.
