@@ -2,7 +2,7 @@ import paho.mqtt.client as mqtt
 import json
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import text
-from app.models import SensorData, User
+from app.models import SensorData, User, UserProfile
 from app.extensions import SessionLocal
 import asyncio
 import hashlib
@@ -35,24 +35,47 @@ async def insert_data(session: AsyncSession, data: dict, user_id: int):
     """
 
     try:
+        #async with session.begin():
         # Ensure the user exists
+        await session.begin()
         user = await session.get(User, user_id)
         if not user:
             user = User(id=user_id, username=str(user_id), email=f"{user_id}@example.com")
+            print("Inserting data...")
             session.add(user)
             await session.commit()
+            print("Data inserted.")
 
-        sensor_data = SensorData(
-            appId=data['appId'],
-            data=data['data'],
-            messageType=data['messageType'],
-            ts=int(data['ts']),
-            user_id=user_id  # user_id is the foreign key
-        )
-        session.add(sensor_data)
-        await session.commit()
+            # Validate that the necessary data fields are present
+            appId = data.get('appId')
+            data_field = data.get('data', {})
+            messageType = data.get('messageType')
+            ts = data.get('ts', 0)
+
+            # Ensure appId and messageType exist before creating SensorData
+            if appId is None or messageType is None:
+                print("Error: Missing 'appId' or 'messageType' in the data payload.")
+                return  # Exit the function if required fields are missing
+
+            # Create and insert sensor data
+            sensor_data = SensorData(
+                appId=appId,
+                data=data_field,
+                messageType=messageType,
+                ts=int(ts),
+                user_id=user_id
+            )
+
+            print("Inserting data...")
+            session.add(sensor_data)
+            await session.commit()
+            print("Data inserted.")
     except ValueError as e:
         print(f"Error inserting data: {e}")
+
+    finally:
+        # Ensure session is closed outside the async context if not done already
+        await session.close()
 
 async def retrieve_data(session: AsyncSession):
     """
@@ -61,6 +84,23 @@ async def retrieve_data(session: AsyncSession):
     async with session:
         result = await session.execute(text("SELECT * FROM sensordata"))
         return result.fetchall()
+    
+async def create_user_with_profile(username, email, full_name, bio, avatar_url):
+    async with SessionLocal() as session:
+        async with session.begin():
+            user = User(username=username, email=email)
+            session.add(user)
+            await session.flush()
+
+            profile = UserProfile(full_name=full_name, bio=bio, avatar_url=avatar_url, user_id=user.id)
+            session.add(profile)
+            await session.commit()
+
+async def retrieve_user_with_profile():
+    async with SessionLocal() as session:
+        async with session:
+            result = await session.execute(text("SELECT * FROM user_profile"))
+            return result.fetchall()
 
 def on_message(client, userdata, msg):
     """
