@@ -61,6 +61,22 @@ Before you begin, ensure you have met the following requirements:
 
 In the root folder run PYTHONPATH=, pytest
 
+## Authentification Testing
+
+Run in two terminals, in the first one run :
+
+  ```sh
+  python oauth2_server.py
+  ```
+
+then in the second one, run
+
+  ```sh
+  python run.py
+  ```
+
+
+
 ## Technologies Used
    ```sh
 Aiohttp: A Python library for building asynchronous web applications.
