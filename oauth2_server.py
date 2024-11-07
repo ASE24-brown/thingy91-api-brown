@@ -162,21 +162,21 @@ def authorize():
         logger.info(f"Authorization request: client_id={client_id}, redirect_uri={redirect_uri}, response_type={response_type}, scope={scope}, state={state}")
         return f'''
         <form method="post">
-            <p>Client ID: {client_id}</p>
-            <p>Redirect URI: {redirect_uri}</p>
-            <p>Response Type: {response_type}</p>
-            <p>Scope: {scope}</p>
-            <p>State: {state}</p>
+            <p>Client ID: <input type="text" id="client_id" name="client_id" value="{client_id or ''}"></p>
+            <p>Redirect URI: <input type="text" id="redirect_uri" name="redirect_uri" value="{redirect_uri or ''}"></p>
+            <p>Response Type: <input type="text" id="response_type" name="response_type" value="{response_type or ''}"></p>
+            <p>Scope: <input type="text" id="scope" name="scope" value="{scope or ''}"></p>
+            <p>State: <input type="text" id="state" name="state" value="{state or ''}"></p>
             <button type="submit">Authorize</button>
         </form>
         '''
     if request.method == 'POST':
         # Handle the authorization request
         code = str(uuid.uuid4())  # Generate a real authorization code
-        client_id = request.args.get('client_id')
-        redirect_uri = request.args.get('redirect_uri')
-        scope = request.args.get('scope')
-        state = request.args.get('state')
+        client_id = request.form.get('client_id')
+        redirect_uri = request.form.get('redirect_uri')
+        scope = request.form.get('scope')
+        state = request.form.get('state')
         authorization_code = {
             'code': code,
             'client_id': client_id,
@@ -198,7 +198,6 @@ def authorize():
 def issue_token():
     client_id = request.form.get('client_id')
     client_secret = request.form.get('client_secret')
-
     # Check client credentials
     client = query_client(client_id, client_secret)
     if not client:
@@ -215,4 +214,5 @@ def issue_token():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8001)
+    app.run(host='0.0.0.0', debug=True, port=5000, ssl_context='adhoc')
+
