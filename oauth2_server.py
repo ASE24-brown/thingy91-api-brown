@@ -31,7 +31,17 @@ clients = {
 }
 
 class Client(ClientMixin):
-    def __init__(self, client_id, client_secret, redirect_uris, scope, token_endpoint_auth_method="client_secret_basic", grant_types=None):
+    def __init__(self, client_id, client_secret, redirect_uris, scope, token_endpoint_auth_method="client_secret_basic", grant_types=None): 
+        """
+        Initialize the Client with the given parameters.
+
+        :param client_id: The client ID for the OAuth2 application.
+        :param client_secret: The client secret for the OAuth2 application.
+        :param redirect_uris: List of allowed redirect URIs.
+        :param scope: The scope of the OAuth2 application.
+        :param token_endpoint_auth_method: The authentication method for the token endpoint.
+        :param grant_types: List of allowed grant types.
+        """        
         self.client_id = client_id
         self.client_secret = client_secret
         self.redirect_uris = redirect_uris
@@ -61,15 +71,19 @@ class Client(ClientMixin):
     def check_grant_type(self, grant_type):
         return grant_type in self.grant_types
     def check_endpoint_auth_method(self, method, endpoint):
-        # Verifies that the auth method used is the expected one
         return self.token_endpoint_auth_method == method
     
     def get_redirect_uri(self):
         return self.redirect_uris[0]
 
-# Modify query_client to use both client_id and client_secret
 def query_client(client_id, client_secret=None):
-    # Sample client data, replace this with your actual data source
+    """
+    Query the client based on client_id and optionally client_secret.
+
+    :param client_id: The client ID to query.
+    :param client_secret: The client secret to verify.
+    :return: The Client object if found and verified, otherwise None.
+    """
     client_data = {
         'client_id': 'your_client_id',
         'client_secret': 'your_client_secret',
@@ -96,6 +110,15 @@ def query_client(client_id, client_secret=None):
     return None
 
 class AuthorizationCode:
+    """
+    Initialize the AuthorizationCode with the given parameters.
+
+    :param code: The authorization code.
+    :param client_id: The client ID associated with the code.
+    :param redirect_uri: The redirect URI associated with the code.
+    :param scope: The scope associated with the code.
+    :param state: The state associated with the code.
+    """
     def __init__(self, code, client_id, redirect_uri, scope, state):
         self.code = code
         self.client_id = client_id
@@ -112,6 +135,12 @@ class AuthorizationCode:
 
 class AuthorizationCodeGrant(grants.AuthorizationCodeGrant):
     def save_authorization_code(self, code, request):
+        """
+        Save the authorization code.
+
+        :param code: The authorization code to save.
+        :param request: The request object.
+        """
         logger.info(f"Saving authorization code: {code}")
         authorization_code = AuthorizationCode(
             code=code['code'],
@@ -123,35 +152,59 @@ class AuthorizationCodeGrant(grants.AuthorizationCodeGrant):
         authorization_codes[code['code']] = code
 
     def query_authorization_code(self, code, client):
+        """
+        Query the authorization code.
+
+        :param code: The authorization code to query.
+        :param client: The client associated with the code.
+        :return: The authorization code if found, otherwise None.
+        """
         logger.info(f"Querying authorization code: {code}")
         return authorization_codes.get(code)
 
     def delete_authorization_code(self, authorization_code):
+        """
+        Delete the authorization code.
+
+        :param authorization_code: The authorization code to delete.
+        """
         logger.info(f"Deleting authorization code: {authorization_code}")
         authorization_codes.pop(authorization_code.code, None)
 
     def authenticate_user(self, authorization_code):
+        """
+        Authenticate the user with the authorization code.
+
+        :param authorization_code: The authorization code to authenticate.
+        :return: The user information.
+        """
         logger.info(f"Authenticating user with authorization code: {authorization_code}")
         return {'user_id': 'user'}
 
 # Define the save_token function
 def save_token(token, request):
+    """
+    Save the token.
+
+    :param token: The token to save.
+    :param request: The request object.
+    """
     logger.info(f"Saving token: {token}")
-    # Implement your token saving logic here
-    # For example, you can save the token to a database or in-memory store
+    # Implement token saving logic here
+    # Save the token to a database or in-memory store
     # tokens[token['access_token']] = token
 
-# Register the save_token function with the AuthorizationServer
 authorization.save_token = save_token
-
-
-
 authorization.query_client = query_client
 authorization.register_grant(AuthorizationCodeGrant)
-#authorization.register_client_auth_method('client_secret_basic', query_client)
 
 @app.route('/oauth/authorize', methods=['GET', 'POST'])
 def authorize():
+    """
+    Handle the authorization request.
+
+    :return: The authorization response.
+    """
     if request.method == 'GET':
         # Display the authorization page
         client_id = request.args.get('client_id')
@@ -196,6 +249,11 @@ def authorize():
 
 @app.route('/oauth/token', methods=['POST'])
 def issue_token():
+    """
+    Issue the token.
+
+    :return: The token response.
+    """
     client_id = request.form.get('client_id')
     client_secret = request.form.get('client_secret')
     # Check client credentials
