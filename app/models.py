@@ -11,8 +11,7 @@ class User(Base):
     username = Column(String, unique=True, index=True) # unique username for each user
     email = Column(String, unique=True, index=True)    # unique email for each user
     sensordata = relationship('SensorData', back_populates='user') # relationship to SensorData
-
-    profile = relationship("UserProfile", uselist=False, back_populates="user")
+    profile = relationship("UserProfile", back_populates="user")
 
 class SensorData(Base):
     __tablename__ = 'sensordata'
@@ -32,6 +31,5 @@ class UserProfile(Base):
     full_name = Column(String, nullable=False) # full name of the user
     bio = Column(String) # bio of the user
     avatar_url = Column(String) # avatar url of the user
-    user_id = Column(Integer, ForeignKey('user.id'), unique=True) # foreign key to user table
-
+    user_id = Column(Integer, ForeignKey('user.id', ondelete='SET NULL')) # foreign key to user table
     user = relationship("User", back_populates="profile")
