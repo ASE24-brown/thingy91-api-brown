@@ -2,7 +2,7 @@ import paho.mqtt.client as mqtt
 import json
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import text
-from app.models import SensorData, User, UserProfile
+from app.models import SensorData, User, Profile
 from app.extensions import SessionLocal
 import asyncio
 import hashlib
@@ -85,14 +85,14 @@ async def retrieve_data(session: AsyncSession):
         result = await session.execute(text("SELECT * FROM sensordata"))
         return result.fetchall()
     
-async def create_user_with_profile(username, email, full_name, bio, avatar_url):
+async def create_user_with_profile(username, email, name, description, type):
     async with SessionLocal() as session:
         async with session.begin():
             user = User(username=username, email=email)
             session.add(user)
             await session.flush()
 
-            profile = UserProfile(full_name=full_name, bio=bio, avatar_url=avatar_url, user_id=user.id)
+            profile = Profile(name=name, description=description, type=type, user_id=user.id)
             session.add(profile)
             await session.commit()
 

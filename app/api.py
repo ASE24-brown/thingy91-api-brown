@@ -1,10 +1,11 @@
 from aiohttp import web
 from app.data_handlers import (
     list_users, clear_users, add_user, show_user, update_user, remove_user,
-    list_profiles, clear_profiles, add_profile, show_profile, update_profile, remove_profile,
-    get_profiles_for_user, add_profile_to_user, get_users_by_profile,
-    list_sensor_data, clear_sensor_data, add_sensor_data, show_sensor_data, update_sensor_data, remove_sensor_data, get_sensor_data_for_user
-)
+    list_profiles, clear_profiles, add_profile, show_profile, update_profile, remove_profile )
+ 
+    #get_profiles_for_user, add_profile_to_user, get_users_by_profile,
+    #list_sensor_data, clear_sensor_data, add_sensor_data, show_sensor_data, update_sensor_data, remove_sensor_data, get_sensor_data_for_user
+
 from app.extensions import reset_db
 
 async def reset_database(request):
@@ -56,14 +57,15 @@ def setup_routes(app):
     app.router.add_get('/users/{id}', show_user)
     app.router.add_patch('/users/{id}', update_user)
     app.router.add_delete('/users/{id}', remove_user)
+    
     #app.router.add_get('/users/{id}/sensor_data', get_sensor_data_for_user) 
     
-    #app.router.add_get('/profiles/', list_profiles)
-    #app.router.add_delete('/profiles/', clear_profiles)
-    #app.router.add_post('/profiles/', add_profile)
-    #app.router.add_get('/profiles/{id}', show_profile)
-    #app.router.add_patch('/profiles/{id}', update_profile)
-    #app.router.add_delete('/profiles/{id}', remove_profile)
+    app.router.add_get('/profiles/', list_profiles)
+    app.router.add_delete('/profiles/', clear_profiles)
+    app.router.add_post('/profiles/', add_profile)
+    app.router.add_get('/profiles/{id}', show_profile)
+    app.router.add_patch('/profiles/{id}', update_profile)
+    app.router.add_delete('/profiles/{id}', remove_profile)
     
     #app.router.add_get('/users/{id}/profiles', get_profiles_for_user)
     #app.router.add_post('/users/{id}/profiles', add_profile_to_user)

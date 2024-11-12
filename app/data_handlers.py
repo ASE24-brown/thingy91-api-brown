@@ -3,7 +3,7 @@ from sqlalchemy.future import select
 from sqlalchemy.sql.expression import delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
-from app.models import User, UserProfile, SensorData
+from app.models import User, Profile, SensorData
 from app.extensions import SessionLocal
 
 import logging
@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 # CRUD operations for User
 
+# curl -X GET http://localhost:8080/users/
 async def list_users(request):
     """
     List all users in the database.
@@ -27,6 +28,8 @@ async def list_users(request):
             users = result.scalars().all()
             return web.json_response([{"id": user.id, "username": user.username, "email": user.email} for user in users])
 
+
+# curl -X DELETE http://localhost:8080/users/
 async def clear_users(request):
     """
     Delete all users from the database.
@@ -39,7 +42,9 @@ async def clear_users(request):
             await session.execute(delete(User))
             await session.commit()
             return web.Response(status=204)
-        
+
+
+# curl -X POST http://localhost:8080/users/ -H "Content-Type: application/json" -d '{"username": "johndoe", "email": "johndoe@example.com"}'
 async def add_user(request):
     """
     Add a new user to the database.
@@ -50,9 +55,9 @@ async def add_user(request):
     data = await request.json()
     username = data.get('username')
     email = data.get('email')
-    full_name = data.get('full_name')
-    bio = data.get('bio')
-    avatar_url = data.get('avatar_url')
+    #name = data.get('name')
+    #description = data.get('description')
+    #type = data.get('type')
 
     logger.debug(f"Received data: {data}")
 
@@ -78,10 +83,10 @@ async def add_user(request):
                 # Access user.id before the session is closed
                 user_id = user.id
 
-                # Optionally create a UserProfile if additional fields are provided
-                if full_name or bio or avatar_url:
-                    profile = UserProfile(full_name=full_name, bio=bio, avatar_url=avatar_url, user_id=user.id)
-                    session.add(profile)
+                # Optionally create a Profile if additional fields are provided
+                #if name or description or type:
+                #    profile = Profile(name=name, description=description, type=type, user_id=user.id)
+                #    session.add(profile)
 
                 await session.commit()
                 logger.debug(f"User created with ID: {user_id}")
@@ -96,7 +101,9 @@ async def add_user(request):
                 logger.error(f"Unexpected error: {e}")
                 await session.rollback()
                 return web.json_response({"error": "Failed to create user"}, status=400)
-            
+
+
+# curl -X GET http://localhost:8080/users/1 
 async def show_user(request):
     """
     Retrieve a user by ID.
@@ -116,6 +123,8 @@ async def show_user(request):
                 "email": user.email
             })
 
+
+# curl -X PATCH http://localhost:8080/users/1 -H "Content-Type: application/json" -d '{"username": "johnsmith", "email": "johnsmith@example.com"}'
 async def update_user(request):
     """
     Update a user's details.
@@ -151,6 +160,7 @@ async def update_user(request):
             "email": user.email
         })
 
+# curl -X DELETE http://localhost:8080/users/1
 async def remove_user(request):
     """
     Delete a user by ID.
@@ -169,21 +179,159 @@ async def remove_user(request):
             return web.Response(status=204)
 
 
+# CRUD operations for Profile
+#curl -X GET http://localhost:8080/profiles/
+async def list_profiles(request):
+    """
+    Retrieves a list of all profiles.
 
-async def get_sensor_data(request):
-    async with SessionLocal() as db:  # Use async context manager
-        # Use an async query to fetch all sensor data
-        result = await db.execute(select(SensorData))
-        data = result.scalars().all()
-        
-        sensor_data = [
-            {
-                "id": sensor.id,
-                "appId": sensor.appId,
-                "data": sensor.data,
-                "messageType": sensor.messageType,
-                "timestamp": sensor.ts
-            }
-            for sensor in data
-        ]
-        return web.json_response({"sensor_data": sensor_data})
+    Args:
+        request (aiohttp.web.Request): The request object.
+
+    Returns:
+        aiohttp.web.Response: JSON response containing a list of profiles.
+    """
+    async with SessionLocal() as session:
+        async with session.begin():
+            result = await session.execute(select(Profile))
+            profiles = result.scalars().all()
+            return web.json_response([{
+                "id": profile.id,
+                "name": profile.name,
+                "description": profile.description,
+                "type": profile.type,
+                "level": profile.level
+            } for profile in profiles])
+
+#curl -X DELETE http://localhost:8080/profiles/
+async def clear_profiles(request):
+    """
+    Deletes all profiles.
+
+    Args:
+        request (aiohttp.web.Request): The request object.
+
+    Returns:
+        aiohttp.web.Response: Response with status 204 (No Content).
+    """
+    async with SessionLocal() as session:
+        async with session.begin():
+            await session.execute(delete(Profile))
+            await session.commit()
+            return web.Response(status=204)
+
+# curl -X POST http://localhost:8080/profiles/ -H "Content-Type: application/json" -d '{"name": "Admin", "description": "Administrator profile", "type": "admin", "user_id": 1}'
+async def add_profile(request):
+    """
+    Creates a new profile.
+
+    Args:
+        request (aiohttp.web.Request): The request object.
+
+    Returns:
+        aiohttp.web.Response: JSON response containing the created profile.
+    """
+    data = await request.json()
+    name = data.get('name')
+    description = data.get('description')
+    type = data.get('type')
+    user_id = data.get('user_id')
+
+    async with SessionLocal() as session:
+        try:
+            profile = Profile(name=name, description=description, type=type, user_id=user_id)
+            session.add(profile)
+            await session.commit()
+            await session.refresh(profile)
+            return web.json_response({
+                "id": profile.id,
+                "name": profile.name,
+                "description": profile.description,
+                "type": profile.type,
+                "user_id": profile.user_id
+            }, status=201)
+        except IntegrityError:
+            await session.rollback()
+            return web.json_response({"error": "Integrity constraint violated. Failed to add profile."}, status=400)
+        except Exception as e:
+            await session.rollback()
+            return web.json_response({"error": str(e)}, status=500)
+
+# curl -X GET http://localhost:8080/profiles/1    
+async def show_profile(request):
+    """
+    Retrieves a specific profile by ID.
+
+    Args:
+        request (aiohttp.web.Request): The request object.
+
+    Returns:
+        aiohttp.web.Response: JSON response containing the profile.
+    """
+    profile_id = request.match_info['id']
+    async with SessionLocal() as session:
+        async with session.begin():
+            profile = await session.get(Profile, profile_id)
+            if not profile:
+                raise web.HTTPNotFound(reason='Profile not found')
+            return web.json_response({
+                "id": profile.id,
+                "name": profile.name,
+                "description": profile.description,
+                "type": profile.type,
+                "user_id": profile.user_id
+            })
+
+# curl -X PATCH http://localhost:8080/profiles/1 -H "Content-Type: application/json" -d '{"name": "User", "description": "User profile", "type": "user"}'
+async def update_profile(request):
+    """
+    Updates a specific profile by ID.
+
+    Args:
+        request (aiohttp.web.Request): The request object.
+
+    Returns:
+        aiohttp.web.Response: JSON response containing the updated profile.
+    """
+    profile_id = request.match_info['id']
+    data = await request.json()
+
+    async with SessionLocal() as session:
+        #async with session.begin():
+            profile = await session.get(Profile, profile_id)
+            if not profile:
+                raise web.HTTPNotFound(reason='Profile not found')
+            
+            for key, value in data.items():
+                setattr(profile, key, value)
+
+            await session.commit()
+            await session.refresh(profile)
+            return web.json_response({
+                "id": profile.id,
+                "name": profile.name,
+                "description": profile.description,
+                "type": profile.type,
+                "user_id": profile.user_id
+            })
+
+# curl -X DELETE http://localhost:8080/profiles/1
+async def remove_profile(request):
+    """
+    Deletes a specific profile by ID.
+
+    Args:
+        request (aiohttp.web.Request): The request object.
+
+    Returns:
+        aiohttp.web.Response: Response with status 204 (No Content).
+    """
+    profile_id = request.match_info['id']
+    async with SessionLocal() as session:
+        async with session.begin():
+            profile = await session.get(Profile, profile_id)
+            if not profile:
+                raise web.HTTPNotFound(reason='Profile not found')
+            await session.delete(profile)
+            await session.commit()
+            return web.Response(status=204)
