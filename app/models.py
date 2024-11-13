@@ -21,7 +21,7 @@ class SensorData(Base):
     data = Column(String) # data from the sensor
     messageType = Column(String) # type of message
     ts = Column(Integer) # timestamp of the data
-    user_id = Column(Integer, ForeignKey('user.id')) # foreign key to user table
+    user_id = Column(Integer, ForeignKey('user.id'), nullable=True) # foreign key to user table
     user = relationship('User', back_populates='sensordata') # relationship to User
     
 class Profile(Base):

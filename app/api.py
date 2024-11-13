@@ -1,10 +1,10 @@
 from aiohttp import web
-from app.data_handlers import (
-    list_users, clear_users, add_user, show_user, update_user, remove_user,
-    list_profiles, clear_profiles, add_profile, show_profile, update_profile, remove_profile )
- 
-    #get_profiles_for_user, add_profile_to_user, get_users_by_profile,
-    #list_sensor_data, clear_sensor_data, add_sensor_data, show_sensor_data, update_sensor_data, remove_sensor_data, get_sensor_data_for_user
+from app.data_handlers import (list_users, clear_users, add_user, show_user, update_user, remove_user)
+from app.data_handlers import (list_profiles, clear_profiles, add_profile, show_profile, update_profile, remove_profile )
+from app.data_handlers import (list_sensor_data, clear_sensor_data, add_sensor_data, show_sensor_data, update_sensor_data, remove_sensor_data)
+from app.data_handlers import get_sensor_data
+
+    #get_profiles_for_user, add_profile_to_user, get_users_by_profile, get_sensor_data_for_user
 
 from app.extensions import reset_db
 
@@ -71,12 +71,15 @@ def setup_routes(app):
     #app.router.add_post('/users/{id}/profiles', add_profile_to_user)
     #app.router.add_get('/profiles/{id}/users', get_users_by_profile)
     
-    #app.router.add_get('/sensor_data/', list_sensor_data)
-    #app.router.add_delete('/sensor_data/', clear_sensor_data)
-    #app.router.add_post('/sensor_data/', add_sensor_data)
-    #app.router.add_get('/sensor_data/{id}', show_sensor_data)
-    #app.router.add_patch('/sensor_data/{id}', update_sensor_data)
-    #app.router.add_delete('/sensor_data/{id}', remove_sensor_data)
+    app.router.add_get('/sensor_data/', list_sensor_data)
+    app.router.add_delete('/sensor_data/', clear_sensor_data)
+    app.router.add_post('/sensor_data/', add_sensor_data)
+    app.router.add_get('/sensor_data/{id}', show_sensor_data)
+    app.router.add_patch('/sensor_data/{id}', update_sensor_data)
+    app.router.add_delete('/sensor_data/{id}', remove_sensor_data)
+
+
+    app.router.add_get('/api/sensor-data', get_sensor_data)
     
     app.router.add_post('/reset_db', reset_database)  # Temporary route to reset the database
 
