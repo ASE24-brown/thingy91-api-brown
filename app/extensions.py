@@ -12,9 +12,13 @@ async def init_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-
 async def reset_db():
     """Drop and recreate the database"""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
+
+async def setup_db(app):
+    """Setup the database for the aiohttp application"""
+    await init_db()
+    app['db'] = SessionLocal
