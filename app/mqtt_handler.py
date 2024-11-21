@@ -45,31 +45,34 @@ async def insert_data(session: AsyncSession, data: dict, user_id: int):
             session.add(user)
             await session.commit()
             print("Data inserted.")
+        else:
+            await session.commit()  # Commit if user already exists
 
-            # Validate that the necessary data fields are present
-            appId = data.get('appId')
-            data_field = data.get('data', {})
-            messageType = data.get('messageType')
-            ts = data.get('ts', 0)
 
-            # Ensure appId and messageType exist before creating SensorData
-            if appId is None or messageType is None:
-                print("Error: Missing 'appId' or 'messageType' in the data payload.")
-                return  # Exit the function if required fields are missing
+        # Validate that the necessary data fields are present
+        appId = data.get('appId')
+        data_field = data.get('data', {})
+        messageType = data.get('messageType')
+        ts = data.get('ts', 0)
 
-            # Create and insert sensor data
-            sensor_data = SensorData(
-                appId=appId,
-                data=data_field,
-                messageType=messageType,
-                ts=int(ts),
-                user_id=user_id
-            )
+        # Ensure appId and messageType exist before creating SensorData
+        if appId is None or messageType is None:
+            print("Error: Missing 'appId' or 'messageType' in the data payload.")
+            return  # Exit the function if required fields are missing
 
-            print("Inserting data...")
-            session.add(sensor_data)
-            await session.commit()
-            print("Data inserted.")
+        # Create and insert sensor data
+        sensor_data = SensorData(
+            appId=appId,
+            data=data_field,
+            messageType=messageType,
+            ts=int(ts),
+            user_id=user_id
+        )
+
+        print("Inserting data...")
+        session.add(sensor_data)
+        await session.commit()
+        print("Data inserted.")
     except ValueError as e:
         print(f"Error inserting data: {e}")
 
