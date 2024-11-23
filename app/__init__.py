@@ -1,18 +1,16 @@
 from aiohttp import web
-from .api import setup_routes
 from .extensions import setup_db
+from .routes import setup_routes
+from auth.auth import auth_middleware
 
-#from .swagger import setup_swagger
 
 async def init_app():
     """
     Initialize the application server
     
     """
-    app = web.Application()
+    app = web.Application(middlewares=[auth_middleware])
     await setup_db(app)
     setup_routes(app)
-    
-    #setup_swagger(app)
 
     return app

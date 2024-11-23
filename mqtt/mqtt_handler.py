@@ -48,7 +48,6 @@ async def insert_data(session: AsyncSession, data: dict, user_id: int):
         else:
             await session.commit()  # Commit if user already exists
 
-
         # Validate that the necessary data fields are present
         appId = data.get('appId')
         data_field = data.get('data', {})
@@ -89,6 +88,9 @@ async def retrieve_data(session: AsyncSession):
         return result.fetchall()
     
 async def create_user_with_profile(username, email, name, description, type):
+    """
+    Create a new user with a profile.
+    """
     async with SessionLocal() as session:
         async with session.begin():
             user = User(username=username, email=email)
@@ -100,6 +102,9 @@ async def create_user_with_profile(username, email, name, description, type):
             await session.commit()
 
 async def retrieve_user_with_profile():
+    """
+    Retrieve all user profiles from the database.
+    """
     async with SessionLocal() as session:
         async with session:
             result = await session.execute(text("SELECT * FROM user_profile"))
@@ -124,7 +129,6 @@ def start_mqtt_listener(app):
     """
     Start the MQTT listener.
     """
-
     client = mqtt.Client(userdata={'db': app['db']})
     client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
     client.on_connect = on_connect

@@ -1,7 +1,7 @@
 import pytest
 import json
 from unittest.mock import AsyncMock, MagicMock
-from app.mqtt_handler import on_connect, on_message, insert_data, generate_user_id
+from mqtt.mqtt_handler import on_connect, on_message, insert_data, generate_user_id
 from app.models import SensorData, User
 from sqlalchemy.sql import text
 
@@ -24,8 +24,6 @@ def mock_session():
     session.commit = AsyncMock()
     session.add = AsyncMock()
     return session
-
-
 
 def test_generate_user_id():
     """Test the generate_user_id function."""

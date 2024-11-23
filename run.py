@@ -2,13 +2,13 @@ from app import init_app
 from aiohttp import web
 import asyncio
 import nest_asyncio
-from app.mqtt_handler import start_mqtt_listener, retrieve_data
+from mqtt import start_mqtt_listener
 from config import CLIENT_ID, CLIENT_SECRET, AUTHORIZATION_BASE_URL, TOKEN_URL, REDIRECT_URI
-from app.auth import OAuth2Session
+from auth import OAuth2Session
 
-nest_asyncio.apply()
+nest_asyncio.apply() 
 
-routes = web.RouteTableDef()
+routes = web.RouteTableDef() 
 
 @routes.get('/login')
 async def login(request):
