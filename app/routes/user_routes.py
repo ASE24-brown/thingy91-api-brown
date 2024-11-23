@@ -8,7 +8,7 @@ from app.extensions import SessionLocal
 from services.user_service import authenticate_user
 import bcrypt
 import logging
-from auth.auth import generate_jwt_token
+from auth.auth import generate_access_token
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -225,7 +225,7 @@ async def login_user(request):
             #return web.json_response({"message": "Login successful", "user_id": user.id}, status=200)
         
             # Génération d'un token d'accès OAuth2 ou JWT
-            token = generate_jwt_token(user)
+            token = generate_access_token(user)
             return web.json_response({"access_token": token, "token_type": "Bearer"}, status=200)
         else:
             return web.json_response({"error": "Invalid credentials"}, status=401)

@@ -7,6 +7,7 @@ import jwt
 import datetime
 from aiohttp import web
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+from services.user_service import authenticate_user
 
 SECRET_KEY = "your_secret_key"  # À remplacer par une clé sécurisée
 
