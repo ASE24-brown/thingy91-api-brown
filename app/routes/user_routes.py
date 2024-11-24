@@ -6,7 +6,11 @@ from sqlalchemy.orm import selectinload
 from app.models import User, Profile, SensorData
 from app.extensions import SessionLocal
 #from services.user_service import authenticate_user
+import jwt
 import bcrypt
+from datetime import datetime, timedelta
+from app.models import User
+from app.extensions import SessionLocal
 import logging
 #from auth.auth import generate_access_token
 
@@ -107,7 +111,17 @@ async def login_user(request):
             user = result.scalars().first()
 
             if user and bcrypt.checkpw(password.encode('utf-8'), user.password):
-                return web.json_response({"message": "Login successful"}, status=200)
+                # Generate JWT token
+                token = jwt.encode(
+                    {
+                        "user_id": user.id,
+                        "exp": datetime.utcnow() + timedelta(hours=1)
+                    },
+                    "your_secret_key",  # Replace with your actual secret key
+                    algorithm="HS256"
+                )
+
+                return web.json_response({"message": "Login successful", "token": token}, status=200)
             else:
                 return web.json_response({"error": "Invalid username or password"}, status=401)
 
