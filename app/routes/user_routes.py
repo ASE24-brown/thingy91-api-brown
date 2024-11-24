@@ -5,10 +5,10 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
 from app.models import User, Profile, SensorData
 from app.extensions import SessionLocal
-from services.user_service import authenticate_user
+#from services.user_service import authenticate_user
 import bcrypt
 import logging
-from auth.auth import generate_access_token
+#from auth.auth import generate_access_token
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -36,7 +36,81 @@ def setup_user_routes(app):
     app.router.add_get('/users/{id}', show_user)
     app.router.add_patch('/users/{id}', update_user)
     app.router.add_delete('/users/{id}', remove_user)
+    app.router.add_post('/register/', register_user)
     app.router.add_post('/login/', login_user) 
+
+
+"""
+curl -X POST http://localhost:8000/register/ \
+    -H "Content-Type: application/json" \
+    -d '{
+        "username": "testuser",
+        "password": "testpassword",
+        "email": "testuser@example.com"
+    }'
+"""
+
+async def register_user(request):
+    """
+    Handle user registration.
+
+    :param request: The request object.
+    :return: The registration response.
+    """
+    data = await request.json()
+    username = data.get('username')
+    password = data.get('password')
+    email = data.get('email')
+
+    if not username or not password or not email:
+        return web.json_response({"error": "Missing required fields"}, status=400)
+
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+    async with SessionLocal() as session:
+        async with session.begin():
+            new_user = User(username=username, password=hashed_password, email=email)
+            session.add(new_user)
+            try:
+                await session.commit()
+                return web.json_response({"message": "User registered successfully"}, status=201)
+            except IntegrityError:
+                await session.rollback()
+                return web.json_response({"error": "User already exists"}, status=400)
+
+"""
+curl -X POST http://localhost:8000/login/ \
+    -H "Content-Type: application/json" \
+    -d '{
+        "username": "testuser",
+        "password": "testpassword"
+    }'
+"""
+
+async def login_user(request):
+    """
+    Handle user login.
+
+    :param request: The request object.
+    :return: The login response.
+    """
+    data = await request.json()
+    username = data.get('username')
+    password = data.get('password')
+
+    if not username or not password:
+        return web.json_response({"error": "Missing required fields"}, status=400)
+
+    async with SessionLocal() as session:
+        async with session.begin():
+            result = await session.execute(select(User).where(User.username == username))
+            user = result.scalars().first()
+
+            if user and bcrypt.checkpw(password.encode('utf-8'), user.password):
+                return web.json_response({"message": "Login successful"}, status=200)
+            else:
+                return web.json_response({"error": "Invalid username or password"}, status=401)
+
     
 # CRUD operations for User
 # curl -X GET http://localhost:8000/users/
@@ -50,8 +124,9 @@ async def list_users(request):
     """
     async with SessionLocal() as session:
         async with session.begin():
-            result = await session.execute(select(User.id, User.username, User.email))
+            result = await session.execute(select(User))
             users = result.scalars().all()
+
             return web.json_response([{"id": user.id, "username": user.username, "email": user.email} for user in users])
 
 # curl.exe -X DELETE http://localhost:8000/users/
@@ -203,14 +278,14 @@ async def remove_user(request):
             await session.commit()
             return web.Response(status=204)
 
-
+"""
 async def login_user(request):
-    """
+    
     Handle user login requests.
 
     :param request: The HTTP request object containing login credentials.
     :return: JSON response indicating success or failure.
-    """
+    
     data = await request.json()
     username = data.get("username")
     password = data.get("password")
@@ -231,3 +306,4 @@ async def login_user(request):
             return web.json_response({"error": "Invalid credentials"}, status=401)
         
         
+"""

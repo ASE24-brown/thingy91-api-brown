@@ -7,9 +7,9 @@ import jwt
 import datetime
 from aiohttp import web
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
-from services.user_service import authenticate_user
+#from services.user_service import authenticate_user
 
-SECRET_KEY = "your_secret_key"  # À remplacer par une clé sécurisée
+#SECRET_KEY = "your_secret_key"  # À remplacer par une clé sécurisée
 
 class OAuth2Session(aiohttp.ClientSession):
     def __init__(self, client_id, client_secret, authorization_base_url, token_url, redirect_uri, **kwargs):
@@ -40,10 +40,11 @@ class OAuth2Session(aiohttp.ClientSession):
         """
         payload = {
             'client_id': self.client_id,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)  # Token expiration time
+            'exp': datetime.datetime.now() + datetime.timedelta(hours=1)  # Token expiration time
         }
         token = jwt.encode(payload, self.client_secret, algorithm='HS256')
         return token
+    
 
     async def fetch_token(self, code):
         """
@@ -82,7 +83,7 @@ class OAuth2Session(aiohttp.ClientSession):
         # Disable HTTPS check for development
         self.client._insecure_transport = True
         return self.client.prepare_request_uri(self.authorization_base_url, redirect_uri=self.redirect_uri)
-    
+"""    
 def generate_access_token(user):
     payload = {
         "sub": user.id,
@@ -112,10 +113,11 @@ async def auth_middleware(app, handler):
     return middleware_handler
 
 async def token_endpoint(request):
-    """
-    OAuth2 Token endpoint.
-    Expects a POST request with grant_type, username, password, etc.
-    """
+    #"""
+    #OAuth2 Token endpoint.
+    #Expects a POST request with grant_type, username, password, etc.
+    #"""
+"""
     data = await request.post()
     grant_type = data.get("grant_type")
 
@@ -141,3 +143,5 @@ async def token_endpoint(request):
             "token_type": "Bearer",
             "expires_in": 3600,  # Durée en secondes
         }, status=200)
+
+"""
