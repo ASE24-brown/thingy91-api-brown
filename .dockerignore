@@ -1,0 +1,6 @@
+__pycach__/
+.git
+*.pyc 
+.env
+.gitingore
+

@@ -7,6 +7,19 @@ from authlib.oauth2.rfc6749 import grants
 from authlib.oauth2.rfc6749.errors import OAuth2Error
 from authlib.oauth2.rfc6749.models import ClientMixin
 import uuid
+import os
+import jwt
+import datetime
+SECRET_KEY = "your_secret_key"  # À remplacer par une clé sécurisée
+
+
+
+# Set the logging level based on an environment variable, default to INFO
+log_level = os.getenv('LOG_LEVEL', 'INFO').upper()
+logging.basicConfig(level=log_level)
+
+# Allow insecure transport for development
+os.environ['AUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -21,14 +34,16 @@ authorization = AuthorizationServer(app)
 authorization_codes = {}
 
 # In-memory store for clients and authorization codes
-clients = {
-    'your_client_id': {
-        'client_id': 'your_client_id',
-        'client_secret': 'your_client_secret',
-        'redirect_uris': ['http://localhost:8000/callback'],
-        'scope': 'openid profile email'
+
+def generate_access_token(user):
+    payload = {
+        "sub": user.id,
+        "username": user.username,
+        "exp": datetime.datetime.now() + datetime.timedelta(hours=1)  # Token expire en 1 heure
     }
-}
+    token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+    return token
+
 
 class Client(ClientMixin):
     def __init__(self, client_id, client_secret, redirect_uris, scope, token_endpoint_auth_method="client_secret_basic", grant_types=None): 
@@ -42,6 +57,7 @@ class Client(ClientMixin):
         :param token_endpoint_auth_method: The authentication method for the token endpoint.
         :param grant_types: List of allowed grant types.
         """        
+        self.id = client_id
         self.client_id = client_id
         self.client_secret = client_secret
         self.redirect_uris = redirect_uris
@@ -75,8 +91,30 @@ class Client(ClientMixin):
     
     def get_redirect_uri(self):
         return self.redirect_uris[0]
+    
+clients = {
+    'your_client_id': Client(
+        client_id='your_client_id',
+        client_secret='your_client_secret',
+        redirect_uris=['http://localhost:8000/callback'],
+        scope='openid profile email'
+    )
+}
+
+
 
 def query_client(client_id, client_secret=None):
+    logger.info(f"Querying client with client_id={client_id}")
+    client = clients.get(client_id)
+    if client_secret is None:
+        return client
+    if client and client.check_client_secret(client_secret):
+        logger.info(f"Client credentials verified for client_id={client_id}")
+        return client
+    logger.warning(f"Invalid client credentials for client_id={client_id}")
+    return None
+
+def query_client2(client_id, client_secret=None):
     """
     Query the client based on client_id and optionally client_secret.
 
@@ -247,8 +285,8 @@ def authorize():
         )
         return redirect(f'{redirect_uri}?code={code}')
 
-@app.route('/oauth/token', methods=['POST'])
-def issue_token():
+#@app.route('/oauth/token', methods=['POST'])
+def issue_token2():
     """
     Issue the token.
 
@@ -265,10 +303,36 @@ def issue_token():
     try:
         logger.info("Issuing token")
         token = authorization.create_token_response()
+        logger.info(f"Token response: {token}")
         return token
     except OAuth2Error as error:
         logger.error(f"OAuth2Error: {error}")
         return jsonify(error.get_body()), error.status_code
+
+@app.route('/oauth/token', methods=['POST'])
+def issue_token():
+    client_id = request.form.get('client_id')
+    client_secret = request.form.get('client_secret')
+    logger.info(f"Received token request: client_id={client_id}, client_secret={client_secret}")
+
+    client = query_client(client_id, client_secret)
+    if not client:
+        logger.warning(f"Invalid client credentials: client_id={client_id}, client_secret={client_secret}")
+        return jsonify({"error": "invalid_client"}), 401
+
+    try:
+        logger.info("Generating token response")
+        token = generate_access_token(client)
+        token_response = {
+            'access_token': token,
+            'token_type': 'Bearer',
+            'expires_in': 3600  # Token validity in seconds
+        }
+        logger.info(f"Generated token response: {token_response}")
+        return jsonify(token_response), 200
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return jsonify({"error": "server_error"}), 500
 
 
 if __name__ == '__main__':

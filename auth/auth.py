@@ -9,7 +9,7 @@ from aiohttp import web
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 #from services.user_service import authenticate_user
 
-#SECRET_KEY = "your_secret_key"  # À remplacer par une clé sécurisée
+SECRET_KEY = "your_secret_key"  # À remplacer par une clé sécurisée
 
 class OAuth2Session(aiohttp.ClientSession):
     def __init__(self, client_id, client_secret, authorization_base_url, token_url, redirect_uri, **kwargs):
@@ -83,7 +83,7 @@ class OAuth2Session(aiohttp.ClientSession):
         # Disable HTTPS check for development
         self.client._insecure_transport = True
         return self.client.prepare_request_uri(self.authorization_base_url, redirect_uri=self.redirect_uri)
-"""    
+  
 def generate_access_token(user):
     payload = {
         "sub": user.id,
@@ -93,6 +93,7 @@ def generate_access_token(user):
     token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
     return token
 
+"""  
 async def auth_middleware(app, handler):
     async def middleware_handler(request):
         token = request.headers.get("Authorization")
