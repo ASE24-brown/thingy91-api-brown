@@ -1,10 +1,15 @@
+import json
+import os
+import jwt
+import datetime
+from aiohttp import web
 import aiohttp
 from oauthlib.oauth2 import WebApplicationClient
 from oauthlib.oauth2.rfc6749.errors import InsecureTransportError
-import json
-import os
+
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
+SECRET_KEY = "your_secret_key"
 
 class OAuth2Session(aiohttp.ClientSession):
     def __init__(self, client_id, client_secret, authorization_base_url, token_url, redirect_uri, **kwargs):
@@ -25,6 +30,20 @@ class OAuth2Session(aiohttp.ClientSession):
         self.token_url = token_url
         self.redirect_uri = redirect_uri
         self.client = WebApplicationClient(client_id)
+    
+    def generate_jwt_token(self):
+        """
+        Generate a JWT token for the OAuth2 application.
+        
+        :param client_id: The client ID for the OAuth2 application.
+        :return: The JWT token as a string.
+        """
+        payload = {
+            'client_id': self.client_id,
+            'exp': datetime.datetime.now() + datetime.timedelta(hours=1)  # Token expiration time
+        }
+        token = jwt.encode(payload, self.client_secret, algorithm='HS256')
+        return token
 
     async def fetch_token(self, code):
         """
@@ -44,6 +63,10 @@ class OAuth2Session(aiohttp.ClientSession):
                 response.raise_for_status()  # Raise an exception for HTTP errors
                 token = await response.json()
                 self.client.parse_request_body_response(json.dumps(token))
+                # Generate JWT token and add it to the response
+                jwt_token = self.generate_jwt_token()
+                token['jwt_token'] = jwt_token
+                
                 return token
         except aiohttp.ClientResponseError as e:
             print(f"HTTP error occurred: {e.status} - {e.message}")

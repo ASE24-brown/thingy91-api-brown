@@ -47,32 +47,23 @@ Before you begin, ensure you have met the following requirements:
 
 ## Usage
 
-1. Initialize the database:
-   ```sh
-    python -m app.extensions init_db
-
-2. Start the MQTT listener and the web server:
-   ```sh
-    python run.py
-
-3. The serevr will start and listen for MQTT messages and HTTP requests.
-
-## Testing
-
-In the root folder run PYTHONPATH=, pytest
-
-## Authentification Testing
-
-Run in two terminals, in the first one run :
+1. Run in two terminals, in the first one run :
 
   ```sh
-  python oauth2_server.py
+  python auth/oauth2_server.py
   ```
 
-then in the second one, run
+2. then in the second one, run
 
   ```sh
   python run.py
+  ```
+
+
+## Using Docker
+
+  ```sh
+  docker-compose up --build
   ```
 
 
