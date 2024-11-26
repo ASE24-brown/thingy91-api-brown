@@ -4,16 +4,14 @@ from sqlalchemy.future import select
 from sqlalchemy.sql.expression import delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
-from app.models import User, Profile, SensorData
-from app.extensions import SessionLocal
-#from services.user_service import authenticate_user
 import jwt
 import bcrypt
 from datetime import datetime, timedelta
 from app.models import User
 from app.extensions import SessionLocal
 import logging
-#from auth.auth import generate_access_token
+from auth.login import login_user
+
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -92,97 +90,6 @@ curl -X POST http://localhost:8000/login/ \
     }'
 """
 
-async def login_user2(request):
-    """
-    Handle user login with OAuth2 token retrieval.
-    """
-    data = await request.json()
-    username = data.get('username')
-    password = data.get('password')
-
-    if not username or not password:
-        return web.json_response({"error": "Missing required fields"}, status=400)
-
-    async with SessionLocal() as session:
-        async with session.begin():
-            result = await session.execute(select(User).where(User.username == username))
-            user = result.scalars().first()
-
-            if user and bcrypt.checkpw(password.encode('utf-8'), user.password):
-                # Étape 3 : Demander un access_token au serveur OAuth2
-                async with aiohttp.ClientSession() as client:
-                    oauth_payload = {
-                        "grant_type": "password",
-                        "username": username,
-                        "password": password,
-                        "client_id": "your_client_id",
-                        "client_secret": "your_client_secret"
-                    }
-
-                    oauth_url = "http://oauth-server.example.com/token"
-                    async with client.post(oauth_url, json=oauth_payload) as oauth_response:
-                        if oauth_response.status == 200:
-                            oauth_data = await oauth_response.json()
-                            access_token = oauth_data.get("access_token")
-                            jwt_token = oauth_data.get("jwt_token")
-
-                            # Associer les tokens à l'utilisateur
-                            user.access_token = access_token
-                            user.jwt_token = jwt_token
-                            await session.commit()
-
-                            return web.json_response({
-                                "message": "Login successful",
-                                "token": jwt.encode(
-                                    {"user_id": user.id, "exp": datetime.utcnow() + timedelta(hours=1)},
-                                    "your_secret_key",  # Remplacez par votre clé secrète
-                                    algorithm="HS256"
-                                ),
-                                "oauth_access_token": access_token,
-                                "oauth_jwt_token": jwt_token
-                            }, status=200)
-                        else:
-                            return web.json_response({"error": "OAuth2 token retrieval failed"}, status=500)
-            else:
-                return web.json_response({"error": "Invalid username or password"}, status=401)
-
-
-
-async def login_user(request):
-    """
-    Handle user login.
-
-    :param request: The request object.
-    :return: The login response.
-    """
-    data = await request.json()
-    username = data.get('username')
-    password = data.get('password')
-
-    if not username or not password:
-        return web.json_response({"error": "Missing required fields"}, status=400)
-
-    async with SessionLocal() as session:
-        async with session.begin():
-            result = await session.execute(select(User).where(User.username == username))
-            user = result.scalars().first()
-
-            if user and bcrypt.checkpw(password.encode('utf-8'), user.password):
-                # Generate JWT token
-                token = jwt.encode(
-                    {
-                        "user_id": user.id,
-                        "exp": datetime.utcnow() + timedelta(hours=1)
-                    },
-                    "your_secret_key",  # Replace with your actual secret key
-                    algorithm="HS256"
-                )
-
-                return web.json_response({"message": "Login successful", "token": token}, status=200)
-            else:
-                return web.json_response({"error": "Invalid username or password"}, status=401)
-
-    
 # CRUD operations for User
 # curl -X GET http://localhost:8000/users/
 # curl.exe -X GET http://localhost:8080/users/
@@ -348,33 +255,3 @@ async def remove_user(request):
             await session.delete(user)
             await session.commit()
             return web.Response(status=204)
-
-"""
-async def login_user(request):
-    
-    Handle user login requests.
-
-    :param request: The HTTP request object containing login credentials.
-    :return: JSON response indicating success or failure.
-    
-    data = await request.json()
-    username = data.get("username")
-    password = data.get("password")
-
-    if not username or not password:
-        return web.json_response({"error": "Username and password are required"}, status=400)
-
-    async with SessionLocal() as session:
-        user = authenticate_user(session, username, password)
-        if user:
-            # Exemple de réponse : créer un token ou retourner les infos utilisateur
-            #return web.json_response({"message": "Login successful", "user_id": user.id}, status=200)
-        
-            # Génération d'un token d'accès OAuth2 ou JWT
-            token = generate_access_token(user)
-            return web.json_response({"access_token": token, "token_type": "Bearer"}, status=200)
-        else:
-            return web.json_response({"error": "Invalid credentials"}, status=401)
-        
-        
-"""
