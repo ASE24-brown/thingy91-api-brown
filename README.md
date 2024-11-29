@@ -30,50 +30,69 @@ Before you begin, ensure you have met the following requirements:
 1. Clone the repository:
 
    ```sh
-   git clone https://github.com/yourusername/thingy91-backend-api.git
-   cd thingy91-backend-api
+   git clone https://github.com/ASE24-brown/thingy91-api-brown.git
+   ```
 
-2. Create a virtual environment:
-    ```sh
-    python -m venv venv
-    source venv/bin/activate
-    
-    # On Windows use     
-    env\Scripts\activate
-
-3. Install the required packages:
+2. Go inside the folder:
+   
    ```sh
-   pip install -r requirements.txt
-
-## Usage
-
-1. Run in two terminals, in the first one run :
-
-  ```sh
-  python auth/oauth2_server.py
-  ```
-
-2. then in the second one, run
-
-  ```sh
-  python run.py
-  ```
-
+   cd thingy91-api-brown
+   ```
 
 ## Using Docker
 
-  ```sh
-  docker-compose up --build
-  ```
+1. Download Docker and install it if not installed
 
+   ```sh
+   https://www.docker.com/products/docker-desktop/
+   ```
 
+2. Launching Docker
+   ```sh
+   docker-compose up --build
+   ```
+
+## Using without Docker
+
+1. Create a virtual environment:
+   ```sh
+   python -m venv venv
+   ```
+2. Activate the newly created environment:
+   
+   On Mac OS
+   ```sh
+   source venv/bin/activate
+   ```
+
+   On Windows use
+   ```sh
+   venv\Scripts\activate
+   ```
+
+4. Install the required packages:
+   ```sh
+   pip install -r requirements.txt
+   ```
+
+5. Run in two terminals, in the first one run :
+
+   ```sh
+   python auth/oauth2_server.py
+   ```
+
+6. then in a second terminal, run
+
+   ```sh
+   python run.py
+   ```
 
 ## Technologies Used
    ```sh
-Aiohttp: A Python library for building asynchronous web applications.
-SQLAlchemy: A SQL toolkit and Object-Relational Mapping (ORM) library for Python.
-Paho MQTT: A Python client library for the MQTT protocol.
-SQLite: A C library that provides a lightweight, disk-based database.
+  Aiohttp: A Python library for building asynchronous web applications.
+  SQLAlchemy: A SQL toolkit and Object-Relational Mapping (ORM) library for Python.
+  Paho MQTT: A Python client library for the MQTT protocol.
+  SQLite: A C library that provides a lightweight, disk-based database.
 
 ## License
 
