@@ -18,10 +18,54 @@ SECRET_KEY = "your_secret_key"  # À remplacer par une clé sécurisée
 
 async def login_user(request):
     """
-    Handle user login.
-
-    :param request: The request object.
-    :return: The login response.
+    ---
+    summary: Handle user login
+    description: Authenticates a user and returns a JWT token if successful.
+    tags:
+      - Users
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+                description: The username of the user
+              password:
+                type: string
+                description: The password of the user
+    responses:
+      '200':
+        description: Login successful
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                token:
+                  type: string
+      '400':
+        description: Missing required fields
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+      '401':
+        description: Invalid username or password
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
     """
     data = await request.json()
     username = data.get('username')
