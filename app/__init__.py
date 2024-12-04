@@ -4,7 +4,6 @@ from .routes import setup_routes
 import logging
 import aiohttp
 from aiohttp_swagger import setup_swagger
-#from auth.auth import auth_middleware
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -51,8 +50,6 @@ async def init_app():
     app.router.add_get('/callback', handle_callback)
     await setup_db(app)
     setup_routes(app)
-    
     setup_swagger(app, swagger_url ="/api/v1/doc", description="Thingy91 API", title="Thingy91 API")
-
 
     return app

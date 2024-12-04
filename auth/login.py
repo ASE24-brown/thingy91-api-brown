@@ -11,10 +11,17 @@ from app.extensions import SessionLocal
 from datetime import datetime, timedelta
 from authlib.oauth2.rfc6749 import OAuth2Request
 from .oauth2_server import authorization, authorization_codes, AuthorizationCode
+from dotenv import load_dotenv
+
+load_dotenv()
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+CLIENT_ID = os.getenv("CLIENT_ID")
+CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
 
 
-SECRET_KEY = "your_secret_key"  # À remplacer par une clé sécurisée
+#SECRET_KEY = "your_secret_key"  # À remplacer par une clé sécurisée
 
 async def login_user(request):
     """

@@ -15,7 +15,6 @@ logging.basicConfig(level=log_level)
 
 nest_asyncio.apply() 
 
-
 async def main():
     app = await init_app()
     start_mqtt_listener(app)

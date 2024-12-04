@@ -8,18 +8,22 @@ from authlib.integrations.flask_oauth2 import AuthorizationServer
 from authlib.oauth2.rfc6749 import grants
 from authlib.oauth2.rfc6749.errors import OAuth2Error
 from authlib.oauth2.rfc6749.models import ClientMixin
+from dotenv import load_dotenv
+
+load_dotenv()
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+CLIENT_ID = os.getenv("CLIENT_ID")
+CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
 # Allow insecure transport for development
 os.environ['AUTHLIB_INSECURE_TRANSPORT'] = '1'
-
-SECRET_KEY = "your_secret_key"  # À remplacer par une clé sécurisée
 
 # Set the logging level based on an environment variable, default to INFO
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['OAUTH2_REFRESH_TOKEN_GENERATOR'] = True
 
 authorization = AuthorizationServer(app)
@@ -111,8 +115,8 @@ class Client(ClientMixin):
     
 clients = {
     'your_client_id': Client(
-        client_id='your_client_id',
-        client_secret='your_client_secret',
+        client_id=CLIENT_ID,
+        client_secret=CLIENT_SECRET,
         redirect_uris=['http://localhost:8000/callback'],
         scope='openid profile email'
     )
