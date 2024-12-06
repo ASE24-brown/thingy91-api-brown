@@ -52,6 +52,10 @@ async def register_user(request):
               properties:
                 error:
                   type: string
+    params:
+      request: The request object containing user data.
+    return:
+      A JSON response indicating success or failure of user registration.
     """
     data = await request.json()
     username = data.get('username')
@@ -100,6 +104,10 @@ async def list_users(request):
                                 email:
                                     type: string
                                     description: Email address
+    params:
+        request: The request object.
+    return:
+        A JSON response containing a list of users.
     """
     async with SessionLocal() as session:
         async with session.begin():
@@ -118,6 +126,10 @@ async def clear_users(request):
     responses:
       '204':
         description: Users deleted successfully
+    params:
+      request: The request object.
+    return:
+      A response indicating the success of the operation.
     """
     async with SessionLocal() as session:
         async with session.begin():
@@ -169,6 +181,10 @@ async def add_user(request):
               properties:
                 error:
                   type: string
+    params:
+      request: The request object containing user data.
+    return:
+      A JSON response indicating success or failure of user creation.
     """
     data = await request.json()
     username = data.get('username')
@@ -247,6 +263,10 @@ async def show_user(request):
                   type: string
       '404':
         description: User not found
+    params:
+      request: The request object containing the user ID.
+    return:
+      A JSON response with the user's details or a 404 error if the user is not found.
     """
     user_id = request.match_info['id']
     async with SessionLocal() as session:
@@ -304,6 +324,10 @@ async def update_user(request):
         description: User not found
       '500':
         description: Internal server error
+    params:
+      request: The request object containing user data.
+    return:
+      A JSON response with the updated user details or an error message.
     """
     user_id = request.match_info['id']
     data = await request.json()
@@ -351,6 +375,10 @@ async def remove_user(request):
         description: User deleted successfully
       '404':
         description: User not found
+    params:
+      request: The request object containing the user ID.
+    return:
+      A response indicating the success of the operation or an error message.
     """
     user_id = request.match_info['id']
     async with SessionLocal() as session:
