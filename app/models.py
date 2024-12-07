@@ -13,6 +13,7 @@ class User(Base):
     password = Column(String, nullable=False) # password for each user
     sensordata = relationship('SensorData', back_populates='user') # relationship to SensorData
     profile = relationship("Profile", back_populates="user")
+    device = relationship('Device', back_populates='user', uselist=False) # relationship to Device
 
     def set_password(self, password):
         """
@@ -48,3 +49,12 @@ class Profile(Base):
     level = Column(Integer) # level of the profile
     user_id = Column(Integer, ForeignKey('user.id', ondelete='SET NULL')) # foreign key to profile table
     user = relationship("User", back_populates="profile")
+
+class Device(Base):
+    __tablename__ = 'device'
+
+    id = Column(Integer, primary_key=True, index=True)  # Primary key
+    name = Column(String, unique=True, nullable=False)  # Name or identifier of the device
+    user_id = Column(Integer, ForeignKey('user.id'))     # Foreign key to associate with a user
+    user = relationship('User', back_populates='device')  # Relationship to User
+    sensordata = relationship('SensorData', back_populates='device')  # Relationship to SensorData
