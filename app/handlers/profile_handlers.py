@@ -33,6 +33,10 @@ async def list_profiles(request):
                     type: string
                   level:
                     type: string
+    params:
+      request: The request object.
+    return:
+      A JSON response containing a list of profiles.
     """
     async with SessionLocal() as session:
         async with session.begin():
@@ -56,6 +60,10 @@ async def clear_profiles(request):
     responses:
       '204':
         description: Profiles deleted successfully
+    params:
+      request: The request object.
+    return:
+      A response indicating the success of the operation.
     """
     async with SessionLocal() as session:
         async with session.begin():
@@ -111,6 +119,10 @@ async def add_profile(request):
         description: Integrity constraint violated. Failed to add profile.
       '500':
         description: Internal server error
+    params:
+      request: The request object containing profile data.
+    return:
+      A JSON response with the created profile details or an error message.
     """
     data = await request.json()
     name = data.get('name')
@@ -172,6 +184,10 @@ async def show_profile(request):
                   type: integer
       '404':
         description: Profile not found
+    params:
+      request: The request object containing the profile ID.
+    return:
+      A JSON response with the profile details or a 404 error if the profile is not found.
     """
     profile_id = request.match_info['id']
     async with SessionLocal() as session:
@@ -235,6 +251,10 @@ async def update_profile(request):
                   type: integer
       '404':
         description: Profile not found
+    params:
+      request: The request object containing profile data.
+    return:
+      A JSON response with the updated profile details or a 404 error if the profile is not found.
     """
     profile_id = request.match_info['id']
     data = await request.json()
@@ -276,6 +296,10 @@ async def remove_profile(request):
         description: Profile deleted successfully
       '404':
         description: Profile not found
+    params:
+      request: The request object containing the profile ID.
+    return:
+      A response indicating the success of the operation or an error message.
     """
     profile_id = request.match_info['id']
     async with SessionLocal() as session:
