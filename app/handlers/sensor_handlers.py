@@ -37,6 +37,10 @@ async def list_sensor_data(request):
                     format: date-time
                   user_id:
                     type: integer
+    params:
+      request: The request object.
+    return:
+      A JSON response containing a list of sensor data.
     """
     async with SessionLocal() as session:
         async with session.begin():
@@ -61,6 +65,10 @@ async def clear_sensor_data(request):
     responses:
       '204':
         description: Sensor data deleted successfully
+    params:
+      request: The request object.
+    return:
+      A response indicating the success of the operation.
     """
     async with SessionLocal() as session:
         async with session.begin():
@@ -121,6 +129,10 @@ async def add_sensor_data(request):
                   type: integer
       '500':
         description: Failed to add sensor data
+    params:
+      request: The request object containing sensor data.
+    return:
+      A JSON response with the created sensor data or an error message.
     """
     data = await request.json()
     user_id = data.get('user_id')  # user_id is now optional
@@ -191,6 +203,10 @@ async def show_sensor_data(request):
                   type: integer
       '404':
         description: Sensor data not found
+    params:
+      request: The request object containing the sensor data ID.
+    return:
+      A JSON response with the sensor data details or a 404 error if the sensor data is not found.
     """
     sensor_id = request.match_info['id']
     async with SessionLocal() as session:
@@ -261,6 +277,10 @@ async def update_sensor_data(request):
                   type: integer
       '404':
         description: Sensor data not found
+    params:
+      request: The request object containing sensor data.
+    return:
+      A JSON response with the updated sensor data details or a 404 error if the sensor data is not found.
     """
     sensor_id = request.match_info['id']
     data = await request.json()
@@ -299,6 +319,10 @@ async def remove_sensor_data(request):
         description: Sensor data deleted successfully
       '404':
         description: Sensor data not found
+    params:
+      request: The request object containing sensor data.
+    return:
+      A JSON response with the updated sensor data details or a 404 error if the sensor data is not found.
     """
     sensor_id = request.match_info['id']
     async with SessionLocal() as session:
@@ -341,6 +365,10 @@ async def get_sensor_data(request):
                       timestamp:
                         type: string
                         format: date-time
+    params:
+      request: The request object.
+    return:
+      A JSON response containing a list of sensor data.
     """
     async with SessionLocal() as db:  # Use async context manager
         # Use an async query to fetch all sensor data
