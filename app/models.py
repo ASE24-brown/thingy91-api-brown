@@ -18,6 +18,9 @@ class User(Base):
     def set_password(self, password):
         """
         Hash and set the password for the user.
+
+        :param password: The plain text password to be hashed
+        :return: None
         """
         hashed = bycrpt.hashpw(password.encode('utf-8'), bycrpt.gensalt())
         self.password = hashed.decode('utf-8')
@@ -25,6 +28,9 @@ class User(Base):
     def check_password(self, password):
         """
         Check the password against the stored hash.
+
+        :param password: The plain text password to check
+        :return: bool - True if the password matches, False otherwise
         """
         return bycrpt.checkpw(password.encode('utf-8'), self.password.encode('utf-8'))
     
@@ -38,6 +44,18 @@ class SensorData(Base):
     ts = Column(Integer) # timestamp of the data
     user_id = Column(Integer, ForeignKey('user.id'), nullable=True) # foreign key to user table
     user = relationship('User', back_populates='sensordata') # relationship to User
+    device_id = Column(Integer, ForeignKey('device.id'), nullable=True) # foreign key to device table
+    device = relationship('Device', back_populates='sensordata') # relationship to Device
+
+class Device(Base):
+    __tablename__ = 'device'
+
+    id = Column(Integer, primary_key=True, index=True)  # Primary key
+    name = Column(String, unique=True, nullable=False)  # Name or identifier of the device
+    user_id = Column(Integer, ForeignKey('user.id'))     # Foreign key to associate with a user
+    user = relationship('User', back_populates='device')  # Relationship to User
+    sensordata = relationship('SensorData', back_populates='device')  # Relationship to SensorData
+    status = Column(String, nullable=False)  # Status of the device
     
 class Profile(Base):
     __tablename__ = 'profile'
@@ -50,11 +68,3 @@ class Profile(Base):
     user_id = Column(Integer, ForeignKey('user.id', ondelete='SET NULL')) # foreign key to profile table
     user = relationship("User", back_populates="profile")
 
-class Device(Base):
-    __tablename__ = 'device'
-
-    id = Column(Integer, primary_key=True, index=True)  # Primary key
-    name = Column(String, unique=True, nullable=False)  # Name or identifier of the device
-    user_id = Column(Integer, ForeignKey('user.id'))     # Foreign key to associate with a user
-    user = relationship('User', back_populates='device')  # Relationship to User
-    sensordata = relationship('SensorData', back_populates='device')  # Relationship to SensorData

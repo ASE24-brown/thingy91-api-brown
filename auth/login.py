@@ -2,6 +2,8 @@ import os
 import jwt
 import datetime
 from aiohttp import web
+import logging
+import aiohttp
 import bcrypt
 import requests
 import uuid
@@ -19,9 +21,44 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
-#SECRET_KEY = "your_secret_key"  # À remplacer par une clé sécurisée
+async def handle_callback(request):
+    code = request.query.get('code')
+    if not code:
+        return web.Response(text="Authorization code not found", status=400)
+
+    logger.info(f"Received authorization code: {code}")
+
+    # Exchange the authorization code for an access token
+    token_url = "http://auth_server:8001/oauth/token"
+    client_id = "your_client_id"
+    client_secret = "your_client_secret"
+    redirect_uri = "http://localhost:8000/callback"
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(token_url, data={
+            'grant_type': 'authorization_code',
+            'code': code,
+            'redirect_uri': redirect_uri,
+            'client_id': client_id,
+            'client_secret': client_secret
+        }) as resp:
+            if resp.status != 200:
+                logger.error(f"Failed to exchange authorization code: {resp.status}")
+                return web.Response(text="Failed to exchange authorization code", status=resp.status)
+
+            token_response = await resp.json()
+            logger.info(f"Token response: {token_response}")
+
+            # Handle the token response (e.g., store the access token)
+            return web.Response(text=f"Access token: {token_response.get('access_token')}")
+
+
+
+
 
 async def login_user(request):
     """
@@ -97,20 +134,6 @@ async def login_user(request):
                     state=''
                 )
                 authorization_codes[code] = authorization_code
-
-                # Exchange authorization code for access token
-                #token_url = 'http://localhost:8000/oauth/token'
-                #token_data = {
-                #    'client_id': 'your_client_id',
-                #    'client_secret': 'your_client_secret',
-                #    'grant_type': 'authorization_code',
-                #    'code': code,
-                #    'redirect_uri': 'http://localhost:8000/callback'
-                #}
-                #token_response = requests.post(token_url, data=token_data)
-                #token_response.raise_for_status()
-                #token_data = token_response.json()
-
                 # Generate JWT token
                 jwt_token = jwt.encode(
                     {
@@ -124,3 +147,19 @@ async def login_user(request):
                 return web.json_response({"message": "Login successful", "token": jwt_token}, status=200)
             else:
                 return web.json_response({"error": "Invalid username or password"}, status=401)
+            
+
+
+
+                  # Exchange authorization code for access token
+                #token_url = 'http://localhost:8000/oauth/token'
+                #token_data = {
+                #    'client_id': 'your_client_id',
+                #    'client_secret': 'your_client_secret',
+                #    'grant_type': 'authorization_code',
+                #    'code': code,
+                #    'redirect_uri': 'http://localhost:8000/callback'
+                #}
+                #token_response = requests.post(token_url, data=token_data)
+                #token_response.raise_for_status()
+                #token_data = token_response.json()

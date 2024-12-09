@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from app.models import User
 from app.extensions import SessionLocal
 import logging
-from auth.login import login_user
+from auth.login import login_user, handle_callback
 from app.handlers.user_handlers import list_users, clear_users, add_user, show_user, update_user, remove_user, register_user, login_user
 
 # Configure logging
@@ -125,3 +125,4 @@ def setup_user_routes(app):
     app.router.add_delete('/users/{id}', remove_user)
     app.router.add_post('/register/', register_user)
     app.router.add_post('/login/', login_user) 
+    app.router.add_get('/callback', handle_callback)
