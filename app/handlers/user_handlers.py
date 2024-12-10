@@ -15,43 +15,8 @@ from auth.login import login_user
 
 async def register_user(request):
     """
-    ---
-    summary: Register a new user
-    description: Handle user registration.
-    tags:
-      - Users
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              username:
-                type: string
-              password:
-                type: string
-              email:
-                type: string
-    responses:
-      '201':
-        description: User registered successfully
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                message:
-                  type: string
-      '400':
-        description: Missing required fields or user already exists
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                error:
-                  type: string
+    Handle user registration.
+    
     params:
       request: The request object containing user data.
     return:
@@ -78,32 +43,10 @@ async def register_user(request):
                 await session.rollback()
                 return web.json_response({"error": "User already exists"}, status=400)
 
-
 async def list_users(request):
     """
-    ---
-    description: Retrieve a list of all users.
-    tags:
-        - Users
-    responses:
-        "200":
-            description: Successful response
-            content:
-                application/json:
-                    schema:
-                        type: array
-                        items:
-                            type: object
-                            properties:
-                                id:
-                                    type: integer
-                                    description: User ID
-                                username:
-                                    type: string
-                                    description: Username
-                                email:
-                                    type: string
-                                    description: Email address
+    Retrieve a list of all users.
+
     params:
         request: The request object.
     return:
@@ -118,14 +61,8 @@ async def list_users(request):
 
 async def clear_users(request):
     """
-    ---
-    summary: Delete all users
-    description: Delete all users from the database.
-    tags:
-      - Users
-    responses:
-      '204':
-        description: Users deleted successfully
+    Delete all users from the database.
+
     params:
       request: The request object.
     return:
@@ -137,50 +74,10 @@ async def clear_users(request):
             await session.commit()
             return web.Response(status=204)
 
-
 async def add_user(request):
     """
-    ---
-    summary: Add a new user
-    description: Add a new user to the database.
-    tags:
-      - Users
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              username:
-                type: string
-              email:
-                type: string
-              password:
-                type: string
-    responses:
-      '201':
-        description: User created successfully
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-                username:
-                  type: string
-                email:
-                  type: string
-      '400':
-        description: Username and email are required or email already registered
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                error:
-                  type: string
+    Add a new user to the database.
+    
     params:
       request: The request object containing user data.
     return:
@@ -236,33 +133,8 @@ async def add_user(request):
 
 async def show_user(request):
     """
-    ---
-    summary: Retrieve a user by ID
-    description: Retrieve a user's details from the database by their ID.
-    tags:
-      - Users
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema:
-          type: string
-    responses:
-      '200':
-        description: A user object
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-                username:
-                  type: string
-                email:
-                  type: string
-      '404':
-        description: User not found
+    Retrieve a user's details from the database by their ID.
+    
     params:
       request: The request object containing the user ID.
     return:
@@ -282,48 +154,8 @@ async def show_user(request):
 
 async def update_user(request):
     """
-    ---
-    summary: Update a user's details
-    description: Update a user's details in the database.
-    tags:
-      - Users
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema:
-          type: string
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              username:
-                type: string
-              email:
-                type: string
-              password:
-                type: string
-    responses:
-      '200':
-        description: User updated successfully
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-                username:
-                  type: string
-                email:
-                  type: string
-      '404':
-        description: User not found
-      '500':
-        description: Internal server error
+    Update a user's details in the database.
+    
     params:
       request: The request object containing user data.
     return:
@@ -359,22 +191,8 @@ async def update_user(request):
 
 async def remove_user(request):
     """
-    ---
-    summary: Delete a user by ID
-    description: Delete a user from the database by their ID.
-    tags:
-      - Users
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema:
-          type: string
-    responses:
-      '204':
-        description: User deleted successfully
-      '404':
-        description: User not found
+    Delete a user from the database by their ID.
+    
     params:
       request: The request object containing the user ID.
     return:

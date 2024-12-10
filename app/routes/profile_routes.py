@@ -10,72 +10,12 @@ def setup_profile_routes(app):
         app (aiohttp.web.Application): The aiohttp application instance.
 
     Routes:
-        GET /profiles/:
-            summary: Retrieves a list of all profiles.
-            responses:
-                200:
-                    description: A list of profiles.
-        DELETE /profiles/:
-            summary: Deletes all profiles.
-            responses:
-                204:
-                    description: Profiles deleted successfully.
-        POST /profiles/:
-            summary: Creates a new profile.
-            requestBody:
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/Profile'
-            responses:
-                201:
-                    description: Profile created successfully.
-        GET /profiles/{id}:
-            summary: Retrieves a specific profile by ID.
-            parameters:
-                - in: path
-                  name: id
-                  required: true
-                  schema:
-                      type: string
-            responses:
-                200:
-                    description: A profile object.
-                404:
-                    description: Profile not found.
-        PATCH /profiles/{id}:
-            summary: Updates a specific profile by ID.
-            parameters:
-                - in: path
-                  name: id
-                  required: true
-                  schema:
-                      type: string
-            requestBody:
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/Profile'
-            responses:
-                200:
-                    description: Profile updated successfully.
-                404:
-                    description: Profile not found.
-        DELETE /profiles/{id}:
-            summary: Deletes a specific profile by ID.
-            parameters:
-                - in: path
-                  name: id
-                  required: true
-                  schema:
-                      type: string
-            responses:
-                204:
-                    description: Profile deleted successfully.
-                404:
-                    description: Profile not found.
+        - GET /profiles/: Retrieves a list of all profiles.
+        - DELETE /profiles/: Deletes all profiles.
+        - POST /profiles/: Creates a new profile.
+        - GET /profiles/{id}: Retrieves a specific profile by ID.
+        - PATCH /profiles/{id}: Updates a specific profile by ID.
+        - DELETE /profiles/{id}: Deletes a specific profile by ID.
     """
    
     app.router.add_get('/profiles/', list_profiles)

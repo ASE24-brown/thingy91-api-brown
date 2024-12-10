@@ -19,8 +19,11 @@ class User(Base):
         """
         Hash and set the password for the user.
 
-        :param password: The plain text password to be hashed
-        :return: None
+        Args:
+            password (str): The plain text password to be hashed.
+
+        Returns:
+            None
         """
         hashed = bycrpt.hashpw(password.encode('utf-8'), bycrpt.gensalt())
         self.password = hashed.decode('utf-8')
@@ -29,8 +32,11 @@ class User(Base):
         """
         Check the password against the stored hash.
 
-        :param password: The plain text password to check
-        :return: bool - True if the password matches, False otherwise
+        Args:
+            password (str): The plain text password to check.
+
+        Returns:
+            bool: True if the password matches, False otherwise.
         """
         return bycrpt.checkpw(password.encode('utf-8'), self.password.encode('utf-8'))
     

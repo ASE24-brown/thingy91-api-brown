@@ -25,96 +25,15 @@ def setup_user_routes(app):
         app (aiohttp.web.Application): The aiohttp application instance.
 
     Routes:
-        GET /users/:
-            summary: Retrieves a list of all users.
-            responses:
-                200:
-                    description: A list of users.
-        DELETE /users/:
-            summary: Deletes all users.
-            responses:
-                204:
-                    description: Users deleted successfully.
-        POST /users/:
-            summary: Creates a new user with a profile.
-            requestBody:
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/User'
-            responses:
-                201:
-                    description: User created successfully.
-        GET /users/{id}:
-            summary: Retrieves a specific user by ID.
-            parameters:
-                - in: path
-                  name: id
-                  required: true
-                  schema:
-                      type: string
-            responses:
-                200:
-                    description: A user object.
-                404:
-                    description: User not found.
-        PATCH /users/{id}:
-            summary: Updates a specific user by ID.
-            parameters:
-                - in: path
-                  name: id
-                  required: true
-                  schema:
-                      type: string
-            requestBody:
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/User'
-            responses:
-                200:
-                    description: User updated successfully.
-                404:
-                    description: User not found.
-        DELETE /users/{id}:
-            summary: Deletes a specific user by ID.
-            parameters:
-                - in: path
-                  name: id
-                  required: true
-                  schema:
-                      type: string
-            responses:
-                204:
-                    description: User deleted successfully.
-                404:
-                    description: User not found.
-        POST /register/:
-            summary: Registers a new user.
-            requestBody:
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/User'
-            responses:
-                201:
-                    description: User registered successfully.
-        POST /login/:
-            summary: Logs in a user.
-            requestBody:
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/Login'
-            responses:
-                200:
-                    description: User logged in successfully.
-                401:
-                    description: Invalid credentials.
+        - GET /users/: Retrieves a list of all users.
+        - DELETE /users/: Deletes all users.
+        - POST /users/: Creates a new user with a profile.
+        - GET /users/{id}: Retrieves a specific user by ID.
+        - PATCH /users/{id}: Updates a specific user by ID.
+        - DELETE /users/{id}: Deletes a specific user by ID.
+        - POST /register/: Registers a new user.
+        - POST /login/: Logs in a user.
+        - GET /callback: Handles callback for login.
     """
 
     app.router.add_get('/users/', list_users)

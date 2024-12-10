@@ -16,72 +16,13 @@ def setup_sensor_routes(app):
         app (aiohttp.web.Application): The aiohttp application instance.
 
     Routes:
-        GET /sensor_data/:
-            summary: Retrieves a list of all sensor data.
-            responses:
-                200:
-                    description: A list of sensor data.
-        DELETE /sensor_data/:
-            summary: Deletes all sensor data.
-            responses:
-                204:
-                    description: Sensor data deleted successfully.
-        POST /sensor_data/:
-            summary: Adds new sensor data.
-            requestBody:
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/SensorData'
-            responses:
-                201:
-                    description: Sensor data added successfully.
-        GET /sensor_data/{id}:
-            summary: Retrieves specific sensor data by ID.
-            parameters:
-                - in: path
-                  name: id
-                  required: true
-                  schema:
-                      type: string
-            responses:
-                200:
-                    description: A sensor data object.
-                404:
-                    description: Sensor data not found.
-        PATCH /sensor_data/{id}:
-            summary: Updates specific sensor data by ID.
-            parameters:
-                - in: path
-                  name: id
-                  required: true
-                  schema:
-                      type: string
-            requestBody:
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/SensorData'
-            responses:
-                200:
-                    description: Sensor data updated successfully.
-                404:
-                    description: Sensor data not found.
-        DELETE /sensor_data/{id}:
-            summary: Deletes specific sensor data by ID.
-            parameters:
-                - in: path
-                  name: id
-                  required: true
-                  schema:
-                      type: string
-            responses:
-                204:
-                    description: Sensor data deleted successfully.
-                404:
-                    description: Sensor data not found.
+        - GET /sensor_data/: Retrieves a list of all sensor data.
+        - DELETE /sensor_data/: Deletes all sensor data.
+        - POST /sensor_data/: Adds new sensor data.
+        - GET /sensor_data/{id}: Retrieves specific sensor data by ID.
+        - PATCH /sensor_data/{id}: Updates specific sensor data by ID.
+        - DELETE /sensor_data/{id}: Deletes specific sensor data by ID.
+        - GET /api/sensor-data: Retrieves sensor data from the API.
     """
     
     app.router.add_get('/sensor_data/', list_sensor_data)

@@ -13,13 +13,8 @@ from app.extensions import SessionLocal
 from datetime import datetime, timedelta
 from authlib.oauth2.rfc6749 import OAuth2Request
 from .oauth2_server import authorization, authorization_codes, AuthorizationCode
-from dotenv import load_dotenv
+from config import SECRET_KEY
 
-load_dotenv()
-
-SECRET_KEY = os.getenv("SECRET_KEY")
-CLIENT_ID = os.getenv("CLIENT_ID")
-CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -140,7 +135,7 @@ async def login_user(request):
                         "user_id": user.id,
                         "exp": datetime.now() + timedelta(hours=1)
                     },
-                    SECRET_KEY,  # Replace with your actual secret key
+                    SECRET_KEY, 
                     algorithm="HS256"
                 )
 
