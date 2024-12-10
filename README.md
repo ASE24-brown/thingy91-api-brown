@@ -9,8 +9,6 @@ Welcome! This is the Backend-API for the Nordic Thingy:91, an easy-to-use batter
   - [Introduction](#introduction)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
-  - [Usage](#usage)
-  - [Testing](#testing)
   - [Technologies Used](#technologies-used)
   - [License](#license)
 
