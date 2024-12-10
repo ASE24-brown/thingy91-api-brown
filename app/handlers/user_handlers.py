@@ -12,6 +12,10 @@ from app.extensions import SessionLocal
 import logging
 from auth.login import login_user
 
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
 
 async def register_user(request):
     """
