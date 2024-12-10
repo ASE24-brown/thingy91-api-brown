@@ -43,7 +43,7 @@ def generate_user_id(user_id_str: str) -> int:
     """
     return int(hashlib.sha256(user_id_str.encode()).hexdigest(), 16) % (10 ** 8)
 
-async def insert_data(session: AsyncSession, data: dict, user_id: int):
+async def insert_data(session: AsyncSession, data: dict, user_id: int, device_id : str):
     """
     Insert sensor data into the database.
 
@@ -85,7 +85,8 @@ async def insert_data(session: AsyncSession, data: dict, user_id: int):
             data=data_field,
             messageType=messageType,
             ts=int(ts),
-            user_id=user_id
+            user_id=user_id,
+            device_id= device_id
         )
 
         print("Inserting data...")
@@ -169,8 +170,9 @@ def on_message(client, userdata, msg):
     topic_parts = msg.topic.split('/')
     user_id_str = topic_parts[1]  # Assuming the topic format is 'things/{user_id}/shadow/update'
     user_id = generate_user_id(user_id_str)
+    device_id = user_id_str
     
-    asyncio.run(insert_data(session, data, user_id))
+    asyncio.run(insert_data(session, data, user_id, device_id))
 
 def start_mqtt_listener(app):
     """
