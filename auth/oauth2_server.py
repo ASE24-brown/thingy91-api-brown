@@ -8,18 +8,22 @@ from authlib.integrations.flask_oauth2 import AuthorizationServer
 from authlib.oauth2.rfc6749 import grants
 from authlib.oauth2.rfc6749.errors import OAuth2Error
 from authlib.oauth2.rfc6749.models import ClientMixin
+from dotenv import load_dotenv
+
+load_dotenv()
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+CLIENT_ID = os.getenv("CLIENT_ID")
+CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
 # Allow insecure transport for development
 os.environ['AUTHLIB_INSECURE_TRANSPORT'] = '1'
-
-SECRET_KEY = "your_secret_key"  # À remplacer par une clé sécurisée
 
 # Set the logging level based on an environment variable, default to INFO
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['OAUTH2_REFRESH_TOKEN_GENERATOR'] = True
 
 authorization = AuthorizationServer(app)
@@ -111,8 +115,8 @@ class Client(ClientMixin):
     
 clients = {
     'your_client_id': Client(
-        client_id='your_client_id',
-        client_secret='your_client_secret',
+        client_id=CLIENT_ID,
+        client_secret=CLIENT_SECRET,
         redirect_uris=['http://localhost:8000/callback'],
         scope='openid profile email'
     )
@@ -227,8 +231,35 @@ def save_token(token, request):
     logger.info(f"Saving token: {token}")
     #tokens[token['access_token']] = token
 
+
 @app.route('/oauth/authorize', methods=['GET', 'POST'])
 def authorize():
+    """
+    Handle the authorization request without showing a form.
+    """
+    client_id = request.args.get('client_id')
+    redirect_uri = request.args.get('redirect_uri')
+    scope = request.args.get('scope')
+    state = request.args.get('state')
+    response_type = request.args.get('response_type')
+
+    # Automatically generate an authorization code
+    code = str(uuid.uuid4())
+    authorization_codes[code] = AuthorizationCode(
+        code=code,
+        client_id=client_id,
+        redirect_uri=redirect_uri,
+        scope=scope,
+        state=state,
+    )
+
+    # Redirect to the client with the authorization code
+    return redirect(f"{redirect_uri}?code={code}&state={state}")
+
+
+
+@app.route('/oauth/authorize2', methods=['GET', 'POST'])
+def authorize2():
     """
     Handle the authorization request.
 
@@ -241,7 +272,14 @@ def authorize():
         response_type = request.args.get('response_type')
         scope = request.args.get('scope')
         state = request.args.get('state')
-        logger.info(f"Authorization request: client_id={client_id}, redirect_uri={redirect_uri}, response_type={response_type}, scope={scope}, state={state}")
+        code_challenge = request.args.get('code_challenge')
+        code_challenge_method = request.args.get('code_challenge_method', 'plain')  # Default to plain if not provided
+        
+        logger.info(f"Authorization request: client_id={client_id}, redirect_uri={redirect_uri}, "
+                    f"response_type={response_type}, scope={scope}, state={state}, "
+                    f"code_challenge={code_challenge}, code_challenge_method={code_challenge_method}")
+        
+        # Render the authorization page (example)
         return f'''
         <form method="post">
             <p>Client ID: <input type="text" id="client_id" name="client_id" value="{client_id or ''}"></p>
@@ -249,6 +287,9 @@ def authorize():
             <p>Response Type: <input type="text" id="response_type" name="response_type" value="{response_type or ''}"></p>
             <p>Scope: <input type="text" id="scope" name="scope" value="{scope or ''}"></p>
             <p>State: <input type="text" id="state" name="state" value="{state or ''}"></p>
+            <button type="submit">Authorize</button>
+            <input type="hidden" id="code_challenge" name="code_challenge" value="{code_challenge or ''}">
+            <input type="hidden" id="code_challenge_method" name="code_challenge_method" value="{code_challenge_method or ''}">
             <button type="submit">Authorize</button>
         </form>
         '''
@@ -259,12 +300,16 @@ def authorize():
         redirect_uri = request.form.get('redirect_uri')
         scope = request.form.get('scope')
         state = request.form.get('state')
+        code_challenge = request.form.get('code_challenge')
+        code_challenge_method = request.form.get('code_challenge_method', 'plain')
         authorization_code = {
             'code': code,
             'client_id': client_id,
             'redirect_uri': redirect_uri,
             'scope': scope,
-            'state': state
+            'state': state,
+            'code_challenge': code_challenge,
+            'code_challenge_method': code_challenge_method
         }
         logger.info(f"Generated authorization code: {authorization_code}")
         authorization_codes[code] = AuthorizationCode(
@@ -274,9 +319,53 @@ def authorize():
             scope=scope,
             state=state
         )
+        # Add code_challenge and code_challenge_method to the saved authorization code object
+        authorization_codes[code].code_challenge = code_challenge
+        authorization_codes[code].code_challenge_method = code_challenge_method
+        
         return redirect(f'{redirect_uri}?code={code}')
 
+
+
+
 @app.route('/oauth/token', methods=['POST'])
+def token():
+    """
+    Exchange authorization code for an access token.
+    """
+    code = request.form.get('code')
+    client_id = request.form.get('client_id')
+    redirect_uri = request.form.get('redirect_uri')
+
+    logger.info(f"Token request received: code={code}, client_id={client_id}, redirect_uri={redirect_uri}")
+
+    # Validate the authorization code
+    if code not in authorization_codes:
+        logger.error("Invalid or expired authorization code.")
+        return jsonify({"error": "invalid_grant"}), 400
+
+    auth_code_data = authorization_codes.pop(code)  # Remove the code after use
+
+    # Validate client_id and redirect_uri
+    if auth_code_data.client_id != client_id or auth_code_data.redirect_uri != redirect_uri:
+        logger.error("Invalid client_id or redirect_uri.")
+        return jsonify({"error": "invalid_client"}), 400
+
+    # Generate an access token (and optionally a refresh token)
+    access_token = str(uuid.uuid4())
+    logger.info(f"Access token generated: {access_token}")
+
+    # Send the token response
+    return jsonify({
+        "access_token": access_token,
+        "token_type": "Bearer",
+        "expires_in": 3600,  # Token expiry in seconds
+        "scope": auth_code_data.scope,
+    })
+
+
+
+@app.route('/oauth/token2', methods=['POST'])
 def issue_token():
     """
     Issue the access token.

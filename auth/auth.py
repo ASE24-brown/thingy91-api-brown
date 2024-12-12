@@ -8,8 +8,14 @@ from oauthlib.oauth2 import WebApplicationClient
 from oauthlib.oauth2.rfc6749.errors import InsecureTransportError
 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+from dotenv import load_dotenv
 
-SECRET_KEY = "your_secret_key"
+load_dotenv()
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+CLIENT_ID = os.getenv("CLIENT_ID")
+CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+
 
 class OAuth2Session(aiohttp.ClientSession):
     def __init__(self, client_id, client_secret, authorization_base_url, token_url, redirect_uri, **kwargs):

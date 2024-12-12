@@ -8,15 +8,20 @@ from auth import OAuth2Session
 import os
 import logging
 
-# Set the logging level based on an environment variable, default to INFO
 log_level = os.getenv('LOG_LEVEL', 'INFO').upper()
 logging.basicConfig(level=log_level)
 
-
 nest_asyncio.apply() 
 
-
 async def main():
+    """
+    Main entry point for the application.
+
+    Initializes the application, starts the MQTT listener, and runs the web application.
+
+    Returns:
+        None
+    """
     app = await init_app()
     start_mqtt_listener(app)
     web.run_app(app, port=8000)
