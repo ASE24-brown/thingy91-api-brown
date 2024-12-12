@@ -2,10 +2,11 @@ import paho.mqtt.client as mqtt
 import json
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import text
-from app.models import SensorData, User, Profile
+from app.models import SensorData, User, Profile, Device
 from app.extensions import SessionLocal
 import asyncio
 import hashlib
+import datetime
 
 MQTT_BROKER = "163.172.151.151"
 MQTT_PORT = 1890
@@ -91,6 +92,13 @@ async def insert_data(session: AsyncSession, data: dict, user_id: int, device_id
 
         print("Inserting data...")
         session.add(sensor_data)
+        # Update device status and last_updated
+        device = await session.get(Device, device_id)
+        if device:
+            device.status = 1
+            device.last_updated = datetime.now()
+            session.add(device)
+
         await session.commit()
         print("Data inserted.")
     except ValueError as e:

@@ -1,7 +1,8 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Float
+from sqlalchemy import Column, Integer, String, ForeignKey, Float, DateTime
 from sqlalchemy.orm import relationship
 from app.extensions import Base
 import bcrypt as bycrpt
+from datetime import datetime
 
 
 class User(Base):
@@ -61,7 +62,8 @@ class Device(Base):
     user_id = Column(Integer, ForeignKey('user.id'))     # Foreign key to associate with a user
     user = relationship('User', back_populates='device')  # Relationship to User
     sensordata = relationship('SensorData', back_populates='device')  # Relationship to SensorData
-    status = Column(String, nullable=False)  # Status of the device
+    status = Column(Integer, nullable=False)  # Status of the device
+    last_updated = Column(DateTime, nullable=False, default=datetime.now)  # Last updated timestamp
     
 class Profile(Base):
     __tablename__ = 'profile'
