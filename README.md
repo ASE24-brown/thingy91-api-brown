@@ -47,7 +47,13 @@ Before you begin, ensure you have met the following requirements:
    https://www.docker.com/products/docker-desktop/
    ```
 
-2. Launching Docker
+
+2. Create a shared Docker network (needed for frontend and backend communication) (If you didn't do it already)
+   ```sh
+   docker network create shared_network
+   ```
+
+3. Launching Docker
    ```sh
    docker-compose up --build
    ```
