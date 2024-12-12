@@ -1,5 +1,5 @@
 from sqlalchemy.exc import IntegrityError
-from app.models import User, Profile, SensorData
+from app.models import User, Profile, SensorData, Device
 from app.handlers.device_handlers import get_all_sensor_data_for_device
 
 
