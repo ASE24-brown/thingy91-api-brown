@@ -5,7 +5,7 @@ from .extensions import setup_db
 from .routes import setup_routes
 from aiohttp_swagger import setup_swagger
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from sqlalchemy.ext.asyncio import AsyncSession
+from .handlers.device_handlers import check_device_status
 from datetime import datetime, timedelta
 from sqlalchemy.future import select
 from .models import Device
@@ -16,16 +16,6 @@ with open(swagger_path, "r") as file:
     swagger_schema = json.load(file)
 
 swagger_dir = os.path.join(os.path.dirname(__file__), '..', 'swagger', 'paths')
-
-async def check_device_status(session: AsyncSession):
-    async with session.begin():
-        result = await session.execute(select(Device))
-        devices = result.scalars().all()
-        for device in devices:
-            if datetime.now() - device.last_updated > timedelta(seconds=30):
-                device.status = 0
-                session.add(device)
-        await session.commit()
 
 
 async def init_app():

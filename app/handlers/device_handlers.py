@@ -4,11 +4,28 @@ from sqlalchemy.sql.expression import delete
 from sqlalchemy.exc import IntegrityError
 from app.models import User, Profile, SensorData, Device
 from app.extensions import SessionLocal
+from sqlalchemy.ext.asyncio import AsyncSession
+from datetime import datetime, timedelta
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
 
+
+async def check_device_status(session: AsyncSession):
+    try:
+        result = await session.execute(select(Device))
+        devices = result.scalars().all()
+        for device in devices:
+            if datetime.now() - device.last_updated > timedelta(seconds=30):
+                logging.debug(f"Device {device.id} is inactive. Updating status to 0.")
+                device.status = 0
+                session.add(device)
+            else:
+                logging.debug(f"Device {device.id} is active. Status remains 1.")
+        logging.debug("Device statuses updated.")
+    except Exception as e:
+        logging.error(f"Error checking device statuses: {e}")
 #Get All Sensor Data for a Device
 
 async def get_all_sensor_data_for_device(request):
@@ -33,7 +50,6 @@ async def get_all_sensor_data_for_device(request):
             sensor_data = result.scalars().all()
             data_list = [{"id": data.id, "data": data.data, "appID": data.appId, "ts": data.ts} for data in sensor_data]
             return web.json_response(data_list)
-
 async def get_all_device_statuses(request):
     """
     Get the status of all devices.
@@ -49,6 +65,9 @@ async def get_all_device_statuses(request):
             logging.debug("Entering get_all_device_statuses function.")
             
             try:
+                # Check and update device statuses within the same transaction
+                await check_device_status(session)
+                
                 result = await session.execute(select(Device.id, Device.status, Device.last_updated))
                 devices = result.all()
                 logging.debug(f"Devices found: {devices}")
@@ -69,7 +88,8 @@ async def get_all_device_statuses(request):
                 return web.json_response(response_data)
             except Exception as e:
                 logging.error(f"Error fetching device statuses: {e}")
-                return web.json_response({"error": "Internal server error"}, status=500)
+                return web.json_response({"error": "Internal server error"}, status=500)       
+
 async def get_device_status(request):
     """
     Get the status of a device.
@@ -108,6 +128,7 @@ async def get_device_status(request):
             except Exception as e:
                 logging.error(f"Error fetching device status: {e}")
                 return web.json_response({"error": "Internal server error"}, status=500)
+            
 # Get All Sensor Data for a User's Devices
 async def get_all_sensor_data_for_user_devices(request):
     async with SessionLocal() as session:
