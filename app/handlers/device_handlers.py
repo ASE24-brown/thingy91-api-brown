@@ -5,6 +5,9 @@ from sqlalchemy.exc import IntegrityError
 from app.models import User, Profile, SensorData, Device
 from app.extensions import SessionLocal
 
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
 
 #Get All Sensor Data for a Device
 
@@ -31,7 +34,80 @@ async def get_all_sensor_data_for_device(request):
             data_list = [{"id": data.id, "data": data.data, "appID": data.appId, "ts": data.ts} for data in sensor_data]
             return web.json_response(data_list)
 
+async def get_all_device_statuses(request):
+    """
+    Get the status of all devices.
 
+    Args:
+        request (web.Request): The request object.
+
+    Returns:
+        web.Response: A JSON response with the statuses of all devices.
+    """
+    async with SessionLocal() as session:
+        async with session.begin():
+            logging.debug("Entering get_all_device_statuses function.")
+            
+            try:
+                result = await session.execute(select(Device.id, Device.status, Device.last_updated))
+                devices = result.all()
+                logging.debug(f"Devices found: {devices}")
+                
+                if not devices:
+                    logging.debug("No devices found in the database.")
+                    return web.json_response({"error": "No devices found"}, status=404)
+
+                # Create response data
+                response_data = [
+                    {
+                        "device_id": device[0],  # Access tuple elements
+                        "status": device[1],
+                        "last_updated": device[2].isoformat()  # Ensure datetime serialization
+                    }
+                    for device in devices
+                ]
+                return web.json_response(response_data)
+            except Exception as e:
+                logging.error(f"Error fetching device statuses: {e}")
+                return web.json_response({"error": "Internal server error"}, status=500)
+async def get_device_status(request):
+    """
+    Get the status of a device.
+
+    Args:
+        request (web.Request): The request object containing the device ID.
+
+    Returns:
+        web.Response: A JSON response with the status of the specified device.
+    """
+    device_id = request.match_info.get('device_id')  # Extract device_id from the request
+    if not device_id:
+        logging.error("Device ID is required but not provided.")
+        return web.json_response({"error": "Device ID is required"}, status=400)
+
+    logging.debug(f"Fetching status for device ID: {device_id}")
+
+    async with SessionLocal() as session:
+        async with session.begin():
+            try:
+                result = await session.execute(
+                    select(Device).where(Device.id == device_id)
+                )
+                device = result.scalars().first()
+                if not device:
+                    logging.debug(f"Device with ID {device_id} not found.")
+                    return web.json_response({"error": "Device not found"}, status=404)
+
+                response_data = {
+                    "device_id": device.id,
+                    "status": device.status,
+                    "last_updated": device.last_updated.isoformat()  # Ensure datetime serialization
+                }
+                logging.debug(f"Device status: {response_data}")
+                return web.json_response(response_data)
+            except Exception as e:
+                logging.error(f"Error fetching device status: {e}")
+                return web.json_response({"error": "Internal server error"}, status=500)
 # Get All Sensor Data for a User's Devices
 async def get_all_sensor_data_for_user_devices(request):
     async with SessionLocal() as session:

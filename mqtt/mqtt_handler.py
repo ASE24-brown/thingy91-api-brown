@@ -7,6 +7,9 @@ from app.extensions import SessionLocal
 import asyncio
 import hashlib
 import datetime
+from datetime import datetime
+import logging
+import re
 
 MQTT_BROKER = "163.172.151.151"
 MQTT_PORT = 1890
@@ -44,28 +47,36 @@ def generate_user_id(user_id_str: str) -> int:
     """
     return int(hashlib.sha256(user_id_str.encode()).hexdigest(), 16) % (10 ** 8)
 
-async def insert_data(session: AsyncSession, data: dict, user_id: int, device_id : str):
+
+async def insert_data(session: AsyncSession, data: dict, device_id: str):
     """
     Insert sensor data into the database.
 
     Args:
         session (AsyncSession): The database session.
         data (dict): The sensor data to insert.
-        user_id (int): The user ID associated with the sensor data.
+        device_id (str): The device ID associated with the sensor data.
 
     Returns:
         None
     """
     try:
+        # Extract the integer part from the device_id
+        match = re.search(r'\d+', device_id)
+        if not match:
+            logging.error("Error: Device ID does not contain an integer.")
+            return
+        device_number = int(match.group())
+
         # Ensure the user exists
         await session.begin()
-        user = await session.get(User, user_id)
+        user = await session.get(User, device_number)
         if not user:
-            user = User(id=user_id, username=str(user_id), email=f"{user_id}@example.com")
-            print("Inserting data...")
+            user = User(id=device_number, username=str(device_number), email=f"{device_number}@example.com")
+            logging.debug("Inserting new user...")
             session.add(user)
             await session.commit()
-            print("Data inserted.")
+            logging.debug("User inserted.")
         else:
             await session.commit()  # Commit if user already exists
 
@@ -77,7 +88,7 @@ async def insert_data(session: AsyncSession, data: dict, user_id: int, device_id
 
         # Ensure appId and messageType exist before creating SensorData
         if appId is None or messageType is None:
-            print("Error: Missing 'appId' or 'messageType' in the data payload.")
+            logging.error("Error: Missing 'appId' or 'messageType' in the data payload.")
             return  # Exit the function if required fields are missing
 
         # Create and insert sensor data
@@ -86,24 +97,36 @@ async def insert_data(session: AsyncSession, data: dict, user_id: int, device_id
             data=data_field,
             messageType=messageType,
             ts=int(ts),
-            user_id=user_id,
-            device_id= device_id
+            user_id=device_number,
+            device_id=device_id
         )
 
-        print("Inserting data...")
+        logging.debug("Inserting sensor data...")
         session.add(sensor_data)
         # Update device status and last_updated
-        device = await session.get(Device, device_id)
+        device = await session.get(Device, device_number)
         if device:
             device.status = 1
             device.last_updated = datetime.now()
             session.add(device)
+        else:
+            logging.debug(f"Device with ID {device_number} not found. Creating new device entry.")
+            new_device = Device(
+                id=device_number,
+                name=f"brown-{device_number}",  # Set the name as brown-{device_number}
+                user_id=device_number,
+                status=1,
+                last_updated=datetime.now()
+            )
+            logging.debug(f"New device details: {new_device}")
+            session.add(new_device)
 
         await session.commit()
-        print("Data inserted.")
+        logging.debug("Data inserted.")
     except ValueError as e:
-        print(f"Error inserting data: {e}")
-
+        logging.error(f"Error inserting data: {e}")
+    except Exception as e:
+        logging.error(f"Unexpected error: {e}")
     finally:
         # Ensure session is closed outside the async context if not done already
         await session.close()
@@ -176,11 +199,9 @@ def on_message(client, userdata, msg):
 
     # Extract user_id from the topic
     topic_parts = msg.topic.split('/')
-    user_id_str = topic_parts[1]  # Assuming the topic format is 'things/{user_id}/shadow/update'
-    user_id = generate_user_id(user_id_str)
-    device_id = user_id_str
+    device_id = topic_parts[1]  # Assuming the topic format is 'things/{device_id}/shadow/update'
     
-    asyncio.run(insert_data(session, data, user_id, device_id))
+    asyncio.run(insert_data(session, data, device_id))
 
 def start_mqtt_listener(app):
     """
