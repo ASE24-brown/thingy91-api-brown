@@ -196,37 +196,6 @@ async def get_sensor_data_with_user_and_device_info(request):
             for sensor_data, device, user in result:
                 print(f"User: {user.username}, Device: {device.name}, Data: {sensor_data.data}")
 
-# Associate a Device with a User
-async def associate_device_with_user2(request):
-    """
-    Associate a device with a user.
-
-    Args:
-        request (web.Request): The request object containing user_id and device_id.
-
-    Returns:
-        web.Response: A JSON response indicating success or failure.
-    """
-    data = await request.json()
-    user_id = data.get("user_id")
-    device_id = data.get("device_id")
-
-    if not user_id or not device_id:
-        return web.json_response({"error": "User ID and Device ID are required"}, status=400)
-
-    async with SessionLocal() as session:
-        async with session.begin():
-            try:
-                device = await session.get(Device, device_id)
-                if not device:
-                    return web.json_response({"error": "Device not found"}, status=404)
-
-                device.user_id = user_id  # Associate the device with the user
-                await session.commit()
-                return web.json_response({"message": "Device successfully associated with user"})
-            except IntegrityError as e:
-                return web.json_response({"error": str(e)}, status=500)
-            
 async def associate_user_to_device(request):
     """
     Associate a user to a device.
