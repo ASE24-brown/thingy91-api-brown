@@ -27,11 +27,16 @@ async def register_user(request):
 
     async with SessionLocal() as session:
         async with session.begin():
-            new_user = User(username=username, password=hashed_password, email=email)
+            # Query the highest user ID
+            result = await session.execute(select(User.id).order_by(User.id.desc()).limit(1))
+            last_id = result.scalar_one_or_none()
+            new_id = (last_id + 1) if last_id is not None else 1
+
+            new_user = User(id=new_id, username=username, password=hashed_password, email=email)
             session.add(new_user)
             try:
                 await session.commit()
-                return web.json_response({"message": "User registered successfully"}, status=201)
+                return web.json_response({"message": "User registered successfully", "user_id": new_id}, status=201)
             except IntegrityError:
                 await session.rollback()
                 return web.json_response({"error": "User already exists"}, status=400)
