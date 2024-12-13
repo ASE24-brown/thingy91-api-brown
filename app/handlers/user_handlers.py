@@ -2,7 +2,7 @@ from aiohttp import web
 from sqlalchemy.future import select
 from sqlalchemy.sql.expression import delete
 from sqlalchemy.exc import IntegrityError
-import bcrypt
+import aiobcrypt as bcrypt
 from app.models import User
 from app.extensions import SessionLocal
 
@@ -23,7 +23,7 @@ async def register_user(request):
     if not username or not password or not email:
         return web.json_response({"error": "Missing required fields"}, status=400)
 
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    hashed_password = await bcrypt.hashpw(password.encode('utf-8'), await bcrypt.gensalt())
 
     async with SessionLocal() as session:
         async with session.begin():
@@ -90,7 +90,7 @@ async def add_user(request):
     if not username or not email or not plain_password:
         return web.json_response({"error": "Username and email are required"}, status=400)
     
-    hashed_password = bcrypt.hashpw(plain_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    hashed_password = await bcrypt.hashpw(plain_password.encode('utf-8'), await bcrypt.gensalt())
 
     async with SessionLocal() as session:
         async with session.begin():
