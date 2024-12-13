@@ -4,18 +4,18 @@ app.routes package
 Submodules
 ----------
 
-app.routes.device\_routes module
---------------------------------
+app.routes.auth\_routes module
+------------------------------
 
-.. automodule:: app.routes.device_routes
+.. automodule:: app.routes.auth_routes
    :members:
    :undoc-members:
    :show-inheritance:
 
-app.routes.profile\_routes module
----------------------------------
+app.routes.device\_routes module
+--------------------------------
 
-.. automodule:: app.routes.profile_routes
+.. automodule:: app.routes.device_routes
    :members:
    :undoc-members:
    :show-inheritance:
