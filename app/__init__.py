@@ -42,6 +42,6 @@ async def init_app():
 
     # Initialize the scheduler
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(check_device_status, 'interval', seconds=30, args=[app['db']])
+    scheduler.add_job(check_device_status, 'interval', seconds=10, args=[app['db']])
     scheduler.start()
     return app

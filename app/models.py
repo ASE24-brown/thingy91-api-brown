@@ -59,7 +59,7 @@ class Device(Base):
 
     id = Column(Integer, primary_key=True, index=True)  # Primary key
     name = Column(String, unique=True, nullable=False)  # Name or identifier of the device
-    user_id = Column(Integer, ForeignKey('user.id'))     # Foreign key to associate with a user
+    user_id = Column(Integer, ForeignKey('user.id'), nullable=True)     # Foreign key to associate with a user
     user = relationship('User', back_populates='device')  # Relationship to User
     sensordata = relationship('SensorData', back_populates='device')  # Relationship to SensorData
     status = Column(Integer, nullable=False)  # Status of the device

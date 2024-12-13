@@ -8,34 +8,8 @@ from app.extensions import SessionLocal
 
 async def list_sensor_data(request):
     """
-    ---
-    summary: Retrieve a list of all sensor data
-    description: Retrieves a list of all sensor data from the database.
-    tags:
-      - SensorData
-    responses:
-      '200':
-        description: A list of sensor data
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  appId:
-                    type: string
-                  data:
-                    type: string
-                  messageType:
-                    type: string
-                  timestamp:
-                    type: string
-                    format: date-time
-                  user_id:
-                    type: integer
+    Retrieves a list of all sensor data from the database.
+    
     params:
       request: The request object.
     return:
@@ -56,14 +30,8 @@ async def list_sensor_data(request):
 
 async def clear_sensor_data(request):
     """
-    ---
-    summary: Delete all sensor data
-    description: Deletes all sensor data from the database.
-    tags:
-      - SensorData
-    responses:
-      '204':
-        description: Sensor data deleted successfully
+    Deletes all sensor data from the database.
+    
     params:
       request: The request object.
     return:
@@ -77,57 +45,8 @@ async def clear_sensor_data(request):
 
 async def add_sensor_data(request):
     """
-    ---
-    summary: Create new sensor data
-    description: Creates new sensor data in the database.
-    tags:
-      - SensorData
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              user_id:
-                type: integer
-                description: ID of the user associated with the sensor data
-              appId:
-                type: string
-                description: Application ID
-              data:
-                type: string
-                description: Sensor data
-              messageType:
-                type: string
-                description: Type of the message
-              ts:
-                type: string
-                format: date-time
-                description: Timestamp of the sensor data
-    responses:
-      '201':
-        description: Sensor data created successfully
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-                appId:
-                  type: string
-                data:
-                  type: string
-                messageType:
-                  type: string
-                timestamp:
-                  type: string
-                  format: date-time
-                user_id:
-                  type: integer
-      '500':
-        description: Failed to add sensor data
+    Creates new sensor data in the database.
+    
     params:
       request: The request object containing sensor data.
     return:
@@ -168,40 +87,8 @@ async def add_sensor_data(request):
 
 async def show_sensor_data(request):
     """
-    ---
-    summary: Retrieve specific sensor data by ID
-    description: Retrieves specific sensor data from the database by its ID.
-    tags:
-      - SensorData
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema:
-          type: string
-    responses:
-      '200':
-        description: A sensor data object
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-                appId:
-                  type: string
-                data:
-                  type: string
-                messageType:
-                  type: string
-                timestamp:
-                  type: string
-                  format: date-time
-                user_id:
-                  type: integer
-      '404':
-        description: Sensor data not found
+    Retrieves specific sensor data from the database by its ID.
+    
     params:
       request: The request object containing the sensor data ID.
     return:
@@ -224,58 +111,8 @@ async def show_sensor_data(request):
 
 async def update_sensor_data(request):
     """
-    ---
-    summary: Update specific sensor data by ID
-    description: Updates specific sensor data in the database by its ID.
-    tags:
-      - SensorData
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema:
-          type: string
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              appId:
-                type: string
-              data:
-                type: string
-              messageType:
-                type: string
-              timestamp:
-                type: string
-                format: date-time
-              user_id:
-                type: integer
-    responses:
-      '200':
-        description: Sensor data updated successfully
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-                appId:
-                  type: string
-                data:
-                  type: string
-                messageType:
-                  type: string
-                timestamp:
-                  type: string
-                  format: date-time
-                user_id:
-                  type: integer
-      '404':
-        description: Sensor data not found
+    Updates specific sensor data in the database by its ID.
+    
     params:
       request: The request object containing sensor data.
     return:
@@ -302,22 +139,8 @@ async def update_sensor_data(request):
 
 async def remove_sensor_data(request):
     """
-    ---
-    summary: Delete specific sensor data by ID
-    description: Deletes specific sensor data from the database by its ID.
-    tags:
-      - SensorData
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema:
-          type: string
-    responses:
-      '204':
-        description: Sensor data deleted successfully
-      '404':
-        description: Sensor data not found
+    Deletes specific sensor data from the database by its ID.
+    
     params:
       request: The request object containing sensor data.
     return:
@@ -335,35 +158,8 @@ async def remove_sensor_data(request):
         
 async def get_sensor_data(request):
     """
-    ---
-    summary: Retrieve all sensor data
-    description: Retrieves all sensor data from the database.
-    tags:
-      - SensorData
-    responses:
-      '200':
-        description: A list of sensor data
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                sensor_data:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                      appId:
-                        type: string
-                      data:
-                        type: string
-                      messageType:
-                        type: string
-                      timestamp:
-                        type: string
-                        format: date-time
+    Retrieves all sensor data from the database.
+    
     params:
       request: The request object.
     return:

@@ -5,7 +5,6 @@ from app.models import User, SensorData, Device
 from app.extensions import SessionLocal
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timedelta
-
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -25,8 +24,9 @@ async def check_device_status(session: AsyncSession):
         logging.debug("Device statuses updated.")
     except Exception as e:
         logging.error(f"Error checking device statuses: {e}")
-#Get All Sensor Data for a Device
 
+
+#Get All Sensor Data for a Device
 async def get_all_sensor_data_for_device(request):
     """
     Get all sensor data for a device.
@@ -49,6 +49,50 @@ async def get_all_sensor_data_for_device(request):
             sensor_data = result.scalars().all()
             data_list = [{"id": data.id, "data": data.data, "appID": data.appId, "ts": data.ts} for data in sensor_data]
             return web.json_response(data_list)
+
+
+async def get_all_sensor_data_for_user_device(request):
+    """
+    Get all sensor data for a specific device belonging to a user.
+
+    Args:
+        request (web.Request): The request object containing the user ID and device ID.
+
+    Returns:
+        web.Response: A JSON response with the sensor data for the specified device and user.
+    """
+    user_id = request.match_info.get('user_id')  # Extract user_id from the request
+    device_id = request.match_info.get('device_id')  # Extract device_id from the request
+
+    if not user_id or not device_id:
+        return web.json_response({"error": "User ID and Device ID are required"}, status=400)
+
+    async with SessionLocal() as session:
+        async with session.begin():
+            # Verify the device is associated with the user
+            device = await session.execute(
+                select(Device).where(Device.id == device_id, Device.user_id == user_id)
+            )
+            device = device.scalar_one_or_none()
+            
+            if not device:
+                return web.json_response({"error": "Device not found or does not belong to the user"}, status=404)
+
+            # Fetch sensor data for the device
+            result = await session.execute(
+                select(SensorData).where(SensorData.device_id == device_id)
+            )
+            sensor_data = result.scalars().all()
+
+            # Format the data
+            data_list = [
+                {"id": data.id, "data": data.data, "appID": data.appId, "ts": data.ts}
+                for data in sensor_data
+            ]
+
+            return web.json_response(data_list)
+
+
 async def get_all_device_statuses(request):
     """
     Get the status of all devices.
@@ -127,7 +171,7 @@ async def get_device_status(request):
             except Exception as e:
                 logging.error(f"Error fetching device status: {e}")
                 return web.json_response({"error": "Internal server error"}, status=500)
-            
+
 # Get All Sensor Data for a User's Devices
 async def get_all_sensor_data_for_user_devices(request):
     async with SessionLocal() as session:
@@ -153,7 +197,7 @@ async def get_sensor_data_with_user_and_device_info(request):
                 print(f"User: {user.username}, Device: {device.name}, Data: {sensor_data.data}")
 
 # Associate a Device with a User
-async def associate_device_with_user(request):
+async def associate_device_with_user2(request):
     """
     Associate a device with a user.
 
@@ -182,5 +226,43 @@ async def associate_device_with_user(request):
                 return web.json_response({"message": "Device successfully associated with user"})
             except IntegrityError as e:
                 return web.json_response({"error": str(e)}, status=500)
+            
+async def associate_user_to_device(request):
+    """
+    Associate a user to a device.
+
+    Args:
+        request (web.Request): The request object containing the user ID and device ID.
+
+    Returns:
+        web.Response: A JSON response indicating success or failure.
+    """
+    data = await request.json()  # Parse the request body for user_id and device_id
+    user_id = data.get("user_id")
+    device_id = data.get("device_id")
+
+    if not user_id or not device_id:
+        return web.json_response({"error": "User ID and Device ID are required"}, status=400)
+
+    async with SessionLocal() as session:
+        async with session.begin():
+            # Check if the user exists
+            user = await session.execute(select(User).where(User.id == user_id))
+            user = user.scalar_one_or_none()
+            if not user:
+                return web.json_response({"error": "User not found"}, status=404)
+
+            # Check if the device exists
+            device = await session.execute(select(Device).where(Device.id == device_id))
+            device = device.scalar_one_or_none()
+            if not device:
+                return web.json_response({"error": "Device not found"}, status=404)
+
+            # Associate the device with the user
+            device.user_id = user_id
+            session.add(device)  # Mark the device for update
+
+            return web.json_response({"message": f"Device {device_id} is now associated with User {user_id}"})
+
 
 

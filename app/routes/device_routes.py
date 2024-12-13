@@ -1,5 +1,5 @@
-from app.handlers.device_handlers import get_all_sensor_data_for_device, get_device_status, get_all_device_statuses
-
+from app.handlers.device_handlers import get_all_sensor_data_for_device, get_device_status, get_all_device_statuses, get_all_sensor_data_for_user_device
+from app.handlers.device_handlers import associate_user_to_device
 
 def setup_device_routes(app):
     """
@@ -12,6 +12,10 @@ def setup_device_routes(app):
         - GET /devices/{device_id}/status: Retrieves the status of a specific device.
         - GET /devices/status: Retrieves the status of all devices.
     """
-    app.router.add_get('/devices/{device_id}/data', get_all_sensor_data_for_device)
     app.router.add_get('/devices/{device_id}/status', get_device_status)
     app.router.add_get('/devices/status', get_all_device_statuses)
+
+    app.router.add_post('/associate-user-to-device', associate_user_to_device)
+
+    app.router.add_get('/devices/{device_id}/data', get_all_sensor_data_for_device)
+    app.router.add_get('/users/{user_id}/devices/{device_id}/data', get_all_sensor_data_for_user_device)

@@ -1,15 +1,11 @@
 import paho.mqtt.client as mqtt
 import json
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.sql import text
-from app.models import SensorData, User, Device
-from app.extensions import SessionLocal
 import asyncio
-import hashlib
-import datetime
-from datetime import datetime
 import logging
 import re
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.models import SensorData, User, Device
+from datetime import datetime
 
 MQTT_BROKER = "163.172.151.151"
 MQTT_PORT = 1890
@@ -35,22 +31,9 @@ def on_connect(client, userdata, flags, rc):
     else:
         print(f"Failed to connect, return code {rc}")
 
-def generate_user_id(user_id_str: str) -> int:
-    """
-    Generate a unique integer ID from a string using a hash function.
-
-    Args:
-        user_id_str (str): The user ID string.
-
-    Returns:
-        int: The generated unique integer ID.
-    """
-    return int(hashlib.sha256(user_id_str.encode()).hexdigest(), 16) % (10 ** 8)
-
-
 async def insert_data(session: AsyncSession, data: dict, device_id: str):
     """
-    Insert sensor data into the database.
+    Insert sensor data into the database and ensure proper associations between users and devices.
 
     Args:
         session (AsyncSession): The database session.
@@ -68,17 +51,33 @@ async def insert_data(session: AsyncSession, data: dict, device_id: str):
             return
         device_number = int(match.group())
 
-        # Ensure the user exists
         await session.begin()
-        user = await session.get(User, device_number)
-        if not user:
-            user = User(id=device_number, username=str(device_number), email=f"{device_number}@example.com")
-            logging.debug("Inserting new user...")
-            session.add(user)
-            await session.commit()
-            logging.debug("User inserted.")
+
+        # Check if the device exists
+        device = await session.get(Device, device_number)
+        if not device:
+            # If the device does not exist, create it with an associated user
+            logging.debug(f"Device with ID {device_number} not found. Creating new device entry.")
+            user = await session.get(User, device_number)
+            if not user:
+                user = User(id=device_number, username=str(device_number), email=f"{device_number}@example.com")
+                session.add(user)
+
+            new_device = Device(
+                id=device_number,
+                name=f"brown-{device_number}",  # Set the name as brown-{device_number}
+                user_id=user.id,
+                status=1,
+                last_updated=datetime.now()
+            )
+            session.add(new_device)
+            device = new_device
         else:
-            await session.commit()  # Commit if user already exists
+            # If the device exists, ensure it has the correct user association
+            user = await session.get(User, device.user_id)
+            if not user:
+                logging.error(f"Device {device_number} exists but has no associated user.")
+                return
 
         # Validate that the necessary data fields are present
         appId = data.get('appId')
@@ -86,10 +85,9 @@ async def insert_data(session: AsyncSession, data: dict, device_id: str):
         messageType = data.get('messageType')
         ts = data.get('ts', 0)
 
-        # Ensure appId and messageType exist before creating SensorData
         if appId is None or messageType is None:
             logging.error("Error: Missing 'appId' or 'messageType' in the data payload.")
-            return  # Exit the function if required fields are missing
+            return  # Exit if required fields are missing
 
         # Create and insert sensor data
         sensor_data = SensorData(
@@ -97,89 +95,27 @@ async def insert_data(session: AsyncSession, data: dict, device_id: str):
             data=data_field,
             messageType=messageType,
             ts=int(ts),
-            user_id=device_number,
-            device_id=device_id
+            user_id=device.user_id,
+            device_id=device.id
         )
 
         logging.debug("Inserting sensor data...")
         session.add(sensor_data)
+
         # Update device status and last_updated
-        device = await session.get(Device, device_number)
-        if device:
-            device.status = 1
-            device.last_updated = datetime.now()
-            session.add(device)
-        else:
-            logging.debug(f"Device with ID {device_number} not found. Creating new device entry.")
-            new_device = Device(
-                id=device_number,
-                name=f"brown-{device_number}",  # Set the name as brown-{device_number}
-                user_id=device_number,
-                status=1,
-                last_updated=datetime.now()
-            )
-            logging.debug(f"New device details: {new_device}")
-            session.add(new_device)
+        device.status = 1
+        device.last_updated = datetime.now()
+        session.add(device)
 
         await session.commit()
-        logging.debug("Data inserted.")
+        logging.debug("Data successfully inserted.")
     except ValueError as e:
         logging.error(f"Error inserting data: {e}")
     except Exception as e:
         logging.error(f"Unexpected error: {e}")
     finally:
-        # Ensure session is closed outside the async context if not done already
+        # Ensure session is closed
         await session.close()
-
-async def retrieve_data(session: AsyncSession):
-    """
-    Retrieve all sensor data from the database.
-
-    Args:
-        session (AsyncSession): The database session.
-
-    Returns:
-        list: A list of all sensor data.
-    """
-    async with session:
-        result = await session.execute(text("SELECT * FROM sensordata"))
-        return result.fetchall()
-    
-async def create_user_with_profile(username, email, name, description, type):
-    """
-    Create a new user with a profile.
-
-    Args:
-        username (str): The username of the user.
-        email (str): The email of the user.
-        name (str): The name of the profile.
-        description (str): The description of the profile.
-        type (str): The type of the profile.
-
-    Returns:
-        None
-    """
-    async with SessionLocal() as session:
-        async with session.begin():
-            user = User(username=username, email=email)
-            session.add(user)
-            await session.flush()
-
-            profile = Profile(name=name, description=description, type=type, user_id=user.id)
-            session.add(profile)
-            await session.commit()
-
-async def retrieve_user_with_profile():
-    """
-    Retrieve all user profiles from the database.
-
-    Returns:
-        list: A list of all user profiles.
-    """
-    async with SessionLocal() as session:
-        async with session:
-            result = await session.execute(text("SELECT * FROM user_profile"))
-            return result.fetchall()
 
 def on_message(client, userdata, msg):
     """
