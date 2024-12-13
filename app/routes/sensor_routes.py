@@ -21,6 +21,7 @@ def setup_sensor_routes(app):
     app.router.add_get('/sensor_data/', list_sensor_data)
     app.router.add_delete('/sensor_data/', clear_sensor_data)
     app.router.add_post('/sensor_data/', add_sensor_data)
+    
     app.router.add_get('/sensor_data/{id}', show_sensor_data)
     app.router.add_patch('/sensor_data/{id}', update_sensor_data)
     app.router.add_delete('/sensor_data/{id}', remove_sensor_data)
