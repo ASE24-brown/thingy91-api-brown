@@ -1,21 +1,10 @@
 from aiohttp import web
-import aiohttp
 from sqlalchemy.future import select
 from sqlalchemy.sql.expression import delete
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import selectinload
-import jwt
 import bcrypt
-from datetime import datetime, timedelta
 from app.models import User
 from app.extensions import SessionLocal
-import logging
-from auth.login import login_user
-
-# Configure logging
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
-
 
 async def register_user(request):
     """
@@ -91,11 +80,6 @@ async def add_user(request):
     username = data.get('username')
     email = data.get('email')
     plain_password = data.get('password')
-    #name = data.get('name')
-    #description = data.get('description')
-    #type = data.get('type')
-
-    logger.debug(f"Received data: {data}")
 
     # Validate required fields
     if not username or not email or not plain_password:
@@ -110,7 +94,6 @@ async def add_user(request):
                 select(User).filter_by(email=email)
             )
             if existing_user.scalars().first():
-                logger.debug("Email already registered")
                 return web.json_response({"error": "Email already registered"}, status=400)
 
             try:
@@ -122,16 +105,13 @@ async def add_user(request):
                 user_id = user.id
 
                 await session.commit()
-                logger.debug(f"User created with ID: {user_id}")
 
                 return web.json_response({"id": user_id, "username": username, "email": email}, status=201)
 
             except IntegrityError as e:
-                logger.error(f"IntegrityError: {e}")
                 await session.rollback()
                 return web.json_response({"error": "Failed to create user"}, status=400)
             except Exception as e:
-                logger.error(f"Unexpected error: {e}")
                 await session.rollback()
                 return web.json_response({"error": "Failed to create user"}, status=400)
 

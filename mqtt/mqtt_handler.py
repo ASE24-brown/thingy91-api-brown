@@ -2,7 +2,7 @@ import paho.mqtt.client as mqtt
 import json
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import text
-from app.models import SensorData, User, Profile, Device
+from app.models import SensorData, User, Device
 from app.extensions import SessionLocal
 import asyncio
 import hashlib

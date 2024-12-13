@@ -51,60 +51,9 @@ async def handle_callback(request):
             # Handle the token response (e.g., store the access token)
             return web.Response(text=f"Access token: {token_response.get('access_token')}")
 
-
-
-
-
 async def login_user(request):
     """
-    ---
-    summary: Handle user login
-    description: Authenticates a user and returns a JWT token if successful.
-    tags:
-      - Users
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              username:
-                type: string
-                description: The username of the user
-              password:
-                type: string
-                description: The password of the user
-    responses:
-      '200':
-        description: Login successful
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                message:
-                  type: string
-                token:
-                  type: string
-      '400':
-        description: Missing required fields
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                error:
-                  type: string
-      '401':
-        description: Invalid username or password
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                error:
-                  type: string
+    Authenticates a user and returns a JWT token if successful.
     """
     data = await request.json()
     username = data.get('username')
@@ -142,19 +91,3 @@ async def login_user(request):
                 return web.json_response({"message": "Login successful", "token": jwt_token}, status=200)
             else:
                 return web.json_response({"error": "Invalid username or password"}, status=401)
-            
-
-
-
-                  # Exchange authorization code for access token
-                #token_url = 'http://localhost:8000/oauth/token'
-                #token_data = {
-                #    'client_id': 'your_client_id',
-                #    'client_secret': 'your_client_secret',
-                #    'grant_type': 'authorization_code',
-                #    'code': code,
-                #    'redirect_uri': 'http://localhost:8000/callback'
-                #}
-                #token_response = requests.post(token_url, data=token_data)
-                #token_response.raise_for_status()
-                #token_data = token_response.json()

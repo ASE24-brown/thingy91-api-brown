@@ -2,8 +2,7 @@ from aiohttp import web
 from sqlalchemy.future import select
 from sqlalchemy.sql.expression import delete
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import selectinload
-from app.models import User, Profile, SensorData
+from app.models import SensorData
 from app.extensions import SessionLocal
 
 

@@ -1,8 +1,7 @@
 from aiohttp import web
 from sqlalchemy.future import select
-from sqlalchemy.sql.expression import delete
 from sqlalchemy.exc import IntegrityError
-from app.models import User, Profile, SensorData, Device
+from app.models import User, SensorData, Device
 from app.extensions import SessionLocal
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timedelta
