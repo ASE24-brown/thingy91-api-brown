@@ -153,6 +153,9 @@ async def get_device_status(request):
     async with SessionLocal() as session:
         async with session.begin():
             try:
+                # Check and update device statuses within the same transaction
+                await check_device_status(session)
+                
                 result = await session.execute(
                     select(Device).where(Device.id == device_id)
                 )

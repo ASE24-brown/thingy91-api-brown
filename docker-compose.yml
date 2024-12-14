@@ -5,10 +5,13 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+    volumes:
+      - ./data:/data 
     depends_on:
       - auth_server
     environment:
       LOG_LEVEL: INFO
+      database_url: sqlite+aiosqlite:///data/thingy91.db
     networks:
       - shared_network
 
