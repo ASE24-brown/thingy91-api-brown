@@ -196,3 +196,28 @@ async def remove_user(request):
             await session.delete(user)
             await session.commit()
             return web.Response(status=204)
+        
+async def get_user_id_by_username(request):
+    """
+    Retrieve the user ID by username.
+
+    Args:
+        request (web.Request): The request object containing the username as a query parameter.
+
+    Returns:
+        web.Response: A JSON response with the user ID.
+    """
+    username = request.query.get('username')  # Extract username from query parameters
+
+    if not username:
+        return web.json_response({"error": "Username is required"}, status=400)
+
+    async with SessionLocal() as session:
+        async with session.begin():
+            result = await session.execute(select(User).where(User.username == username))
+            user = result.scalar_one_or_none()
+
+            if not user:
+                return web.json_response({"error": "User not found"}, status=404)
+
+            return web.json_response({"id": user.id, "username": user.username})
