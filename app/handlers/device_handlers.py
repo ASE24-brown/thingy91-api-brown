@@ -174,43 +174,31 @@ async def get_device_status(request):
             except Exception as e:
                 logging.error(f"Error fetching device status: {e}")
                 return web.json_response({"error": "Internal server error"}, status=500)
-
 async def associate_user_to_device(request):
-    """
-    Associate a user to a device.
+    try:
+        data = await request.json()
+        user_id = data.get("user_id")
+        device_id = data.get("device_id")
 
-    Args:
-        request (web.Request): The request object containing the user ID and device ID.
+        if not user_id or not device_id:
+            return web.json_response({"error": "User ID and Device ID are required"}, status=400)
 
-    Returns:
-        web.Response: A JSON response indicating success or failure.
-    """
-    data = await request.json()  # Parse the request body for user_id and device_id
-    user_id = data.get("user_id")
-    device_id = data.get("device_id")
+        async with SessionLocal() as session:
+            async with session.begin():
+                user = await session.execute(select(User).where(User.id == user_id))
+                user = user.scalar_one_or_none()
+                if not user:
+                    return web.json_response({"error": "User not found"}, status=404)
 
-    if not user_id or not device_id:
-        return web.json_response({"error": "User ID and Device ID are required"}, status=400)
+                device = await session.execute(select(Device).where(Device.id == device_id))
+                device = device.scalar_one_or_none()
+                if not device:
+                    return web.json_response({"error": "Device not found"}, status=404)
 
-    async with SessionLocal() as session:
-        async with session.begin():
-            # Check if the user exists
-            user = await session.execute(select(User).where(User.id == user_id))
-            user = user.scalar_one_or_none()
-            if not user:
-                return web.json_response({"error": "User not found"}, status=404)
+                device.user_id = user_id
+                session.add(device)
+                await session.commit()  # Commit the changes
 
-            # Check if the device exists
-            device = await session.execute(select(Device).where(Device.id == device_id))
-            device = device.scalar_one_or_none()
-            if not device:
-                return web.json_response({"error": "Device not found"}, status=404)
-
-            # Associate the device with the user
-            device.user_id = user_id
-            session.add(device)  # Mark the device for update
-
-            return web.json_response({"message": f"Device {device_id} is now associated with User {user_id}"})
-
-
-
+                return web.json_response({"message": f"Device {device_id} is now associated with User {user_id}"})
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
