@@ -5,6 +5,7 @@ from sqlalchemy.exc import IntegrityError
 import aiobcrypt as bcrypt
 from app.models import User
 from app.extensions import SessionLocal
+import logging
 
 async def register_user(request):
     """
@@ -15,32 +16,40 @@ async def register_user(request):
     return:
       A JSON response indicating success or failure of user registration.
     """
-    data = await request.json()
-    username = data.get('username')
-    password = data.get('password')
-    email = data.get('email')
+    try:
+        data = await request.json()
+        username = data.get('username')
+        password = data.get('password')
+        email = data.get('email')
 
-    if not username or not password or not email:
-        return web.json_response({"error": "Missing required fields"}, status=400)
+        if not username or not password or not email:
+            logging.error("Missing required fields")
+            return web.json_response({"error": "Missing required fields"}, status=400)
 
-    hashed_password = await bcrypt.hashpw(password.encode('utf-8'), await bcrypt.gensalt())
+        hashed_password = await bcrypt.hashpw(password.encode('utf-8'), await bcrypt.gensalt())
 
-    async with SessionLocal() as session:
-        async with session.begin():
-            # Query the highest user ID
-            result = await session.execute(select(User.id).order_by(User.id.desc()).limit(1))
-            last_id = result.scalar_one_or_none()
-            new_id = (last_id + 1) if last_id is not None else 1
+        async with SessionLocal() as session:
+            async with session.begin():
+                # Query the highest user ID
+                result = await session.execute(select(User.id).order_by(User.id.desc()).limit(1))
+                last_id = result.scalar_one_or_none()
+                new_id = (last_id + 1) if last_id is not None else 1
 
-            new_user = User(id=new_id, username=username, password=hashed_password, email=email)
-            session.add(new_user)
-            try:
-                await session.commit()
-                return web.json_response({"message": "User registered successfully", "user_id": new_id}, status=201)
-            except IntegrityError:
-                await session.rollback()
-                return web.json_response({"error": "User already exists"}, status=400)
-
+                new_user = User(id=new_id, username=username, password=hashed_password, email=email)
+                session.add(new_user)
+                try:
+                    await session.commit()
+                    logging.info(f"User {new_id} registered successfully")
+                    return web.json_response({"message": "User registered successfully", "user_id": new_id}, status=201)
+                except IntegrityError:
+                    await session.rollback()
+                    logging.error("User already exists")
+                    return web.json_response({"error": "User already exists"}, status=400)
+    except Exception as e:
+        logging.error(f"Unexpected error: {e}")
+        return web.json_response({"error": "Internal server error"}, status=500)
+    
+    
 async def list_users(request):
     """
     Retrieve a list of all users.

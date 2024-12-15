@@ -174,7 +174,23 @@ async def get_device_status(request):
             except Exception as e:
                 logging.error(f"Error fetching device status: {e}")
                 return web.json_response({"error": "Internal server error"}, status=500)
+            
+
 async def associate_user_to_device(request):
+    """
+    Associates a user to a device based on the provided user_id and device_id in the request.
+
+    Args:
+        request (Request): The incoming HTTP request containing JSON data with user_id and device_id.
+
+    Returns:
+        Response: A JSON response indicating the result of the association operation.
+                  - If user_id or device_id is missing, returns a 400 status with an error message.
+                  - If the user is not found, returns a 404 status with an error message.
+                  - If the device is not found, returns a 404 status with an error message.
+                  - If the association is successful, returns a 200 status with a success message.
+                  - If an exception occurs, returns a 500 status with an error message.
+    """
     try:
         data = await request.json()
         user_id = data.get("user_id")
@@ -197,8 +213,45 @@ async def associate_user_to_device(request):
 
                 device.user_id = user_id
                 session.add(device)
-                await session.commit()  # Commit the changes
+                await session.commit()
 
                 return web.json_response({"message": f"Device {device_id} is now associated with User {user_id}"})
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+
+async def disassociate_device_from_user(request):
+    """
+    Disassociates a device from a user based on the provided user_id in the request.
+
+    Args:
+        request (Request): The incoming HTTP request containing JSON data with user_id.
+
+    Returns:
+        Response: A JSON response indicating the result of the disassociation operation.
+                  - If user_id is missing, returns a 400 status with an error message.
+                  - If the user is not found, returns a 404 status with an error message.
+                  - If the disassociation is successful, returns a 200 status with a success message.
+                  - If an exception occurs, returns a 500 status with an error message.
+    """
+    try:
+        data = await request.json()
+        user_id = data.get("user_id")
+
+        if not user_id:
+            return web.json_response({"error": "User ID is required"}, status=400)
+
+        async with SessionLocal() as session:
+            async with session.begin():
+                user = await session.execute(select(User).where(User.id == user_id))
+                user = user.scalar_one_or_none()
+                if not user:
+                    return web.json_response({"error": "User not found"}, status=404)
+
+                user.device_id = None
+                session.add(user)
+                await session.commit()
+
+                return web.json_response({"message": f"User {user_id} is now disassociated from any device"})
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
