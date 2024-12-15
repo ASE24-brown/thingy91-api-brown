@@ -17,5 +17,5 @@ def setup_routes(app):
     setup_device_routes(app)
 
     # Print detailed information about the routes
-    #for route in app.router.routes():
-    #    print(f"Route: {route.method} {route.resource}")
+    for route in app.router.routes():
+        print(f"Route: {route.method} {route.resource}")
