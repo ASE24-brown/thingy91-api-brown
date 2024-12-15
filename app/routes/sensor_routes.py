@@ -1,4 +1,4 @@
-from app.handlers.sensor_handlers import list_sensor_data, clear_sensor_data, add_sensor_data, show_sensor_data, update_sensor_data, remove_sensor_data, get_sensor_data, get_all_sensor_data_for_user
+from app.control.sensor_controller import list_sensor_data, clear_sensor_data, add_sensor_data, show_sensor_data, update_sensor_data, remove_sensor_data, get_sensor_data, get_all_sensor_data_for_user
 
 def setup_sensor_routes(app):
     """

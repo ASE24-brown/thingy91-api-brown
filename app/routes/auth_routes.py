@@ -1,5 +1,5 @@
 from auth.login import login_user, handle_callback
-from app.handlers.user_handlers import register_user
+from app.control.user_controller import register_user
 
 def setup_auth_routes(app):
     """

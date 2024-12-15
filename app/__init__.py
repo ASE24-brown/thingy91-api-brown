@@ -5,7 +5,7 @@ from .extensions import setup_db
 from .routes import setup_routes
 from aiohttp_swagger import setup_swagger
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from .handlers.device_handlers import check_device_status
+from .control.device_controller import check_device_status
 from datetime import datetime, timedelta
 from sqlalchemy.future import select
 from .models import Device

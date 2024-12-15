@@ -1,5 +1,5 @@
-from app.handlers.device_handlers import get_all_sensor_data_for_device, get_device_status, get_all_device_statuses, get_all_sensor_data_for_user_device
-from app.handlers.device_handlers import associate_user_to_device, disassociate_device_from_user
+from app.control.device_controller import get_all_sensor_data_for_device, get_device_status, get_all_device_statuses, get_all_sensor_data_for_user_device
+from app.control.device_controller import associate_user_to_device, disassociate_device_from_user
 
 def setup_device_routes(app):
     """

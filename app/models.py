@@ -8,12 +8,12 @@ from datetime import datetime
 class User(Base):
     __tablename__ = 'user'
 
-    id = Column(Integer, primary_key=True, index=True) # primary key of the table
+    id = Column(Integer, primary_key=True,autoincrement=True, index=True) # primary key of the table
     username = Column(String, unique=True, index=True, nullable=False) # unique username for each user
     email = Column(String, unique=True, index=True, nullable=False)    # unique email for each user
     password = Column(String, nullable=False) # password for each user
     sensordata = relationship('SensorData', back_populates='user') # relationship to SensorData
-    profile = relationship('Profile', back_populates='user', uselist=False) # relationship to Profile
+    profile = relationship('Profile', back_populates='user') # relationship to Profile
     device = relationship('Device', back_populates='user', uselist=False) # relationship to Device
 
     def set_password(self, password):

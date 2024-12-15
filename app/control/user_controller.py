@@ -41,6 +41,8 @@ async def register_user(request):
                     await session.commit()
                     logging.info(f"User {new_id} registered successfully")
                     return web.json_response({"message": "User registered successfully", "user_id": new_id}, status=201)
+                    await session.close()
+                    
                 except IntegrityError:
                     await session.rollback()
                     logging.error("User already exists")

@@ -1,4 +1,4 @@
-from app.handlers.user_handlers import list_users, clear_users, add_user, show_user, update_user, remove_user, get_user_id_by_username
+from app.control.user_controller import list_users, clear_users, add_user, show_user, update_user, remove_user, get_user_id_by_username
 
 def setup_user_routes(app):
     """
