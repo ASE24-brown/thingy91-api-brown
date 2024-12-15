@@ -1,5 +1,5 @@
 from app.handlers.user_handlers import list_users, clear_users, add_user, show_user, update_user, remove_user
-
+from app.handlers.user_handlers import get_user_id_by_username
 def setup_user_routes(app):
     """
     Sets up the RESTful API routes for the aiohttp application.
@@ -22,3 +22,4 @@ def setup_user_routes(app):
     app.router.add_get('/users/{id}', show_user)
     app.router.add_patch('/users/{id}', update_user)
     app.router.add_delete('/users/{id}', remove_user)
+    app.router.add_get('/users/get_id', get_user_id_by_username)

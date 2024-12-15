@@ -175,30 +175,6 @@ async def get_device_status(request):
                 logging.error(f"Error fetching device status: {e}")
                 return web.json_response({"error": "Internal server error"}, status=500)
 
-# Get All Sensor Data for a User's Devices
-async def get_all_sensor_data_for_user_devices(request):
-    async with SessionLocal() as session:
-        async with session.begin():
-            user_id = 1  # Replace with the desired user ID
-            result = await session.execute(
-                select(SensorData).join(Device).where(Device.user_id == user_id)
-            )
-            sensor_data = result.scalars().all()
-            for data in sensor_data:
-                print(data.id, data.data, data.ts)
-
-#  Get Sensor Data with User and Device Info
-async def get_sensor_data_with_user_and_device_info(request):
-    async with SessionLocal() as session:
-        async with session.begin():
-            result = await session.execute(
-                select(SensorData, Device, User)
-                .join(Device, SensorData.device_id == Device.id)
-                .join(User, Device.user_id == User.id)
-            )
-            for sensor_data, device, user in result:
-                print(f"User: {user.username}, Device: {device.name}, Data: {sensor_data.data}")
-
 async def associate_user_to_device(request):
     """
     Associate a user to a device.

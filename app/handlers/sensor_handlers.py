@@ -4,6 +4,7 @@ from sqlalchemy.sql.expression import delete
 from sqlalchemy.exc import IntegrityError
 from app.models import SensorData
 from app.extensions import SessionLocal
+from app.models import User, SensorData, Device
 
 
 async def list_sensor_data(request):
@@ -182,3 +183,47 @@ async def get_sensor_data(request):
         ]
         return web.json_response({"sensor_data": sensor_data})
         
+async def get_all_sensor_data_for_user2(request):
+    user_id = request.match_info.get('user_id')
+    if not user_id:
+        return web.json_response({"error": "User ID is required"}, status=400)
+
+    return web.json_response({"message": f"Retrieved data for user {user_id}"})
+
+
+async def get_all_sensor_data_for_user(request):
+    """
+    Get all sensor data for all devices belonging to a user.
+
+    Args:
+        request (web.Request): The request object containing the user ID.
+
+    Returns:
+        web.Response: A JSON response with the sensor data for the specified user.
+    """
+    user_id = request.match_info.get('user_id')  # Extract user_id from the request
+
+    if not user_id:
+        return web.json_response({"error": "User ID is required"}, status=400)
+
+    async with SessionLocal() as session:
+        async with session.begin():
+            # Verify the user exists
+            user = await session.get(User, user_id)
+            if not user:
+                return web.json_response({"error": "User not found"}, status=404)
+
+            # Fetch sensor data for all devices associated with the user
+            result = await session.execute(
+                select(SensorData).join(Device).where(Device.user_id == user_id)
+            )
+            sensor_data = result.scalars().all()
+
+            # Format the data
+            data_list = [
+                {"id": data.id, "data": data.data, "appID": data.appId, "ts": data.ts, "device_id": data.device_id}
+                for data in sensor_data
+            ]
+
+            return web.json_response(data_list)
+
