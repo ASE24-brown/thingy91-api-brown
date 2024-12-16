@@ -1,6 +1,10 @@
 # Use the official Python image from the Docker Hub
 FROM python:3.9-slim
 
+# Add a non-root user
+RUN useradd -m appuser
+USER appuser
+
 # Set the working directory in the container
 WORKDIR /thingy91-api-brown
 
