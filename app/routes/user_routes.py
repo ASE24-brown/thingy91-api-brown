@@ -14,6 +14,7 @@ def setup_user_routes(app):
         - GET /users/{id}: Retrieves a specific user by ID.
         - PATCH /users/{id}: Updates a specific user by ID.
         - DELETE /users/{id}: Deletes a specific user by ID.
+        - GET /users/get_id: Retrieves the user ID by username.
     """
 
     app.router.add_get('/users/', list_users)

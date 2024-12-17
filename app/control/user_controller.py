@@ -13,9 +13,10 @@ async def register_user(request):
     """
     Handle user registration.
     
-    params:
+    Args:
       request: The request object containing user data.
-    return:
+
+    Returns:
       A JSON response indicating success or failure of user registration.
     """
     try:
@@ -53,14 +54,14 @@ async def register_user(request):
         logging.error(f"Unexpected error: {e}")
         return web.json_response({"error": "Internal server error"}, status=500)
     
-    
 async def list_users(request):
     """
     Retrieve a list of all users.
 
-    params:
+    Args:
         request: The request object.
-    return:
+
+    Returns:
         A JSON response containing a list of users.
     """
     async with SessionLocal() as session:
@@ -95,14 +96,14 @@ async def get_user_id_by_username(request):
 
             return web.json_response({"id": user.id, "username": user.username})
 
-
 async def clear_users(request):
     """
     Delete all users from the database.
 
-    params:
+    Args:
       request: The request object.
-    return:
+
+    Returns:
       A response indicating the success of the operation.
     """
     async with SessionLocal() as session:
@@ -115,9 +116,10 @@ async def add_user(request):
     """
     Add a new user to the database.
     
-    params:
+    Args:
       request: The request object containing user data.
-    return:
+
+    Returns:
       A JSON response indicating success or failure of user creation.
     """
     data = await request.json()
@@ -163,9 +165,10 @@ async def show_user(request):
     """
     Retrieve a user's details from the database by their ID.
     
-    params:
+    Args:
       request: The request object containing the user ID.
-    return:
+
+    Returns:
       A JSON response with the user's details or a 404 error if the user is not found.
     """
     user_id = request.match_info['id']
@@ -184,9 +187,10 @@ async def update_user(request):
     """
     Update a user's details in the database.
     
-    params:
+    Args:
       request: The request object containing user data.
-    return:
+
+    Return:
       A JSON response with the updated user details or an error message.
     """
     user_id = request.match_info['id']
@@ -221,9 +225,10 @@ async def remove_user(request):
     """
     Delete a user from the database by their ID.
     
-    params:
+    Args:
       request: The request object containing the user ID.
-    return:
+
+    Return:
       A response indicating the success of the operation or an error message.
     """
     user_id = request.match_info['id']

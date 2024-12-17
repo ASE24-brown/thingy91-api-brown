@@ -1,6 +1,5 @@
 from aiohttp import web
 from sqlalchemy.future import select
-from sqlalchemy.exc import IntegrityError
 from app.model.device import Device
 from app.model.sensor_data import SensorData
 from app.model.user import User
@@ -11,8 +10,23 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 
-
 async def check_device_status(session: AsyncSession):
+    """
+    Check the status of devices and update their status if they are inactive.
+
+    This function queries the database for all devices and checks their last updated timestamp.
+    If a device has not been updated in the last 30 seconds, it is considered inactive and its status
+    is updated to 0. Otherwise, the device is considered active and its status remains 1.
+
+    Args:
+        session (AsyncSession): The database session used to execute the query.
+
+    Returns:
+        dict: A summary of the status updates.
+
+    Raises:
+        Exception: If there is an error while checking device statuses.
+    """
     try:
         result = await session.execute(select(Device))
         devices = result.scalars().all()
@@ -27,8 +41,6 @@ async def check_device_status(session: AsyncSession):
     except Exception as e:
         logging.error(f"Error checking device statuses: {e}")
 
-
-#Get All Sensor Data for a Device
 async def get_all_sensor_data_for_device(request):
     """
     Get all sensor data for a device.
@@ -52,7 +64,6 @@ async def get_all_sensor_data_for_device(request):
             data_list = [{"id": data.id, "data": data.data, "appID": data.appId, "ts": data.ts} for data in sensor_data]
             return web.json_response(data_list)
 
-
 async def get_all_sensor_data_for_user_device(request):
     """
     Get all sensor data for a specific device belonging to a user.
@@ -63,8 +74,8 @@ async def get_all_sensor_data_for_user_device(request):
     Returns:
         web.Response: A JSON response with the sensor data for the specified device and user.
     """
-    user_id = request.match_info.get('user_id')  # Extract user_id from the request
-    device_id = request.match_info.get('device_id')  # Extract device_id from the request
+    user_id = request.match_info.get('user_id')
+    device_id = request.match_info.get('device_id')
 
     if not user_id or not device_id:
         return web.json_response({"error": "User ID and Device ID are required"}, status=400)
@@ -93,7 +104,6 @@ async def get_all_sensor_data_for_user_device(request):
             ]
 
             return web.json_response(data_list)
-
 
 async def get_all_device_statuses(request):
     """
@@ -176,8 +186,7 @@ async def get_device_status(request):
             except Exception as e:
                 logging.error(f"Error fetching device status: {e}")
                 return web.json_response({"error": "Internal server error"}, status=500)
-            
-
+        
 async def associate_user_to_device(request):
     """
     Associates a user to a device based on the provided user_id and device_id in the request.
@@ -220,7 +229,6 @@ async def associate_user_to_device(request):
                 return web.json_response({"message": f"Device {device_id} is now associated with User {user_id}"})
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
-
 
 async def disassociate_device_from_user(request):
     """

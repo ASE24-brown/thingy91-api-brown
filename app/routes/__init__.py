@@ -9,7 +9,8 @@ def setup_routes(app):
     """
     Configure all the routes for the application.
 
-    :param app: Instance of the aiohttp application
+    Args:
+        app (aiohttp.web.Application): Instance of the aiohttp application.
     """
     setup_user_routes(app)
     setup_auth_routes(app)
