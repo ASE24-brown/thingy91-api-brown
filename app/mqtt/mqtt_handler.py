@@ -4,7 +4,9 @@ import asyncio
 import logging
 import re
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models import SensorData, User, Device
+from app.model.device import Device
+from app.model.sensor_data import SensorData
+from app.model.user import User
 from datetime import datetime
 
 MQTT_BROKER = "163.172.151.151"
@@ -60,7 +62,10 @@ async def insert_data(session: AsyncSession, data: dict, device_id: str):
             logging.debug(f"Device with ID {device_number} not found. Creating new device entry.")
             user = await session.get(User, device_number)
             if not user:
-                user = User(id=device_number, username=str(device_number), email=f"{device_number}@example.com")
+                user = User(id=device_number, 
+                            username=str(device_number), 
+                            email=f"{device_number}@example.com", 
+                            password= "default_password")
                 session.add(user)
 
             new_device = Device(

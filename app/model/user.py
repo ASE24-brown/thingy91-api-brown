@@ -1,11 +1,12 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Float, DateTime
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
-from app.extensions import Base
+from app.database import Base
 import bcrypt as bycrpt
 
 
 class User(Base):
     __tablename__ = 'user'
+    __table_args__ = {'extend_existing': True} 
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True) # primary key of the table
     username = Column(String, unique=True, index=True, nullable=False) # unique username for each user

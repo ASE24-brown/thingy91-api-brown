@@ -8,8 +8,10 @@ import bcrypt
 import requests
 import uuid
 from sqlalchemy.future import select
-from app.models import User
-from app.extensions import SessionLocal
+from app.model.device import Device
+from app.model.sensor_data import SensorData
+from app.model.user import User
+from app.database import SessionLocal
 from datetime import datetime, timedelta
 from authlib.oauth2.rfc6749 import OAuth2Request
 from .oauth2_server import authorization, authorization_codes, AuthorizationCode

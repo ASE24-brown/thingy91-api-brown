@@ -1,8 +1,10 @@
 from aiohttp import web
 from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
-from app.models import User, SensorData, Device
-from app.extensions import SessionLocal
+from app.model.device import Device
+from app.model.sensor_data import SensorData
+from app.model.user import User
+from app.database import SessionLocal
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timedelta
 import logging

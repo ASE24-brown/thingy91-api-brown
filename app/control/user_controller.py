@@ -3,8 +3,10 @@ from sqlalchemy.future import select
 from sqlalchemy.sql.expression import delete
 from sqlalchemy.exc import IntegrityError
 import aiobcrypt as bcrypt
-from app.models import User
-from app.extensions import SessionLocal
+from app.model.device import Device
+from app.model.sensor_data import SensorData
+from app.model.user import User
+from app.database import SessionLocal
 import logging
 
 async def register_user(request):

@@ -2,9 +2,10 @@ from aiohttp import web
 from sqlalchemy.future import select
 from sqlalchemy.sql.expression import delete
 from sqlalchemy.exc import IntegrityError
-from app.models import SensorData
-from app.extensions import SessionLocal
-from app.models import User, Device
+from app.database import SessionLocal
+from app.model.device import Device
+from app.model.sensor_data import SensorData
+from app.model.user import User
 
 
 async def list_sensor_data(request):

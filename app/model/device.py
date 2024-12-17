@@ -1,11 +1,12 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
-from app.extensions import Base
+from app.database import Base
 from datetime import datetime
 
 
 class Device(Base):
     __tablename__ = 'device'
+    __table_args__ = {'extend_existing': True} 
 
     id = Column(Integer, primary_key=True, index=True)  # Primary key
     name = Column(String, unique=True, nullable=False)  # Name or identifier of the device
