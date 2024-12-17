@@ -23,6 +23,15 @@ logger = logging.getLogger(__name__)
 
 
 async def handle_callback(request):
+    """
+    Handles the OAuth2 callback by exchanging the authorization code for an access token.
+
+    Args:
+        request: The request object containing the authorization code.
+
+    Returns:
+        web.Response: A response with the access token or an error message.
+    """
     code = request.query.get('code')
     if not code:
         return web.Response(text="Authorization code not found", status=400)
@@ -56,6 +65,12 @@ async def handle_callback(request):
 async def login_user(request):
     """
     Authenticates a user and returns a JWT token if successful.
+
+    Args:
+        request: The request object containing the username and password.
+
+    Returns:
+        web.json_response: A JSON response with the JWT token or an error message.
     """
     data = await request.json()
     username = data.get('username')
