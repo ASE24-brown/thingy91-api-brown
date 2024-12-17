@@ -45,6 +45,10 @@ services:
       - DOCKER_INFLUXDB_INIT_ORG=your_org
       - DOCKER_INFLUXDB_INIT_BUCKET=your_bucket
       - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=YOUR_INFLUXDB_TOKEN
+      - INFLUXDB_HTTP_CORS_ENABLED=true
+      - INFLUXDB_HTTP_CORS_ALLOW_ORIGIN=http://localhost:5050,http://app:5050
+      - INFLUXDB_HTTP_CORS_ALLOW_METHODS=GET,POST,OPTIONS
+      - INFLUXDB_HTTP_CORS_ALLOW_HEADERS=Authorization,Content-Type,Accept
     networks:
       - shared_network
 

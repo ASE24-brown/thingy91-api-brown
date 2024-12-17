@@ -227,16 +227,19 @@ async def get_sensor_data_for_user(request):
     Returns:
         web.Response: JSON response with the sensor data for the specified user.
     """
-    user_id = request.match_info['user_id']
-    
-    # Define the InfluxDB query for fetching sensor data based on user_id
-    query = f'''
-    from(bucket: "{INFLUXDB_BUCKET}")
-      |> range(start: -1h)  # Adjust the time range as needed
-      |> filter(fn: (r) => r["_measurement"] == "sensor_data")
-      |> filter(fn: (r) => r["user_id"] == "{user_id}")
-      |> yield(name: "mean")
-    '''
+    user_id = request.match_info.get("user_id", "").strip()
+    query = f"""
+        from(bucket: "{INFLUXDB_BUCKET}")
+            |> range(start: -30d)
+            |> filter(fn: (r) => r["_measurement"] == "sensor_data")
+            |> filter(fn: (r) => r["user_id"] == "{user_id}")
+            |> filter(fn: (r) => r["_field"] == "data")
+            |> filter(fn: (r) => r["_field"] == "value")  // Ensure only numeric fields are processed
+            |> group(columns: ["appId"])
+            |> mean()
+        """
+    print(f"Generated Flux query:\n{query}")
+
     
     try:
         # Query InfluxDB for the sensor data based on the user_id

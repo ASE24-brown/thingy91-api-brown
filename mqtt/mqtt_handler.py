@@ -109,13 +109,12 @@ async def insert_data(session: AsyncSession, data: dict, device_id: str):
         point = Point("sensor_data") \
             .tag("device_id", device.id) \
             .tag("user_id", device.user_id) \
-            .tag("user_id", device.user_id) \
-            .field("appId", appId) \
+            .tag("appId", appId) \
+            .tag("messageType", messageType) \
             .field("data", json.dumps(data_field)) \
-            .field("messageType", messageType) \
-            .field("ts", ts) \
+            .field("ts", int(ts)) \
             .time(datetime.utcnow())
-        
+
         logging.debug("Writing data to InfluxDB...")
         write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, record=point)
 
