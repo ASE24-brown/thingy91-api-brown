@@ -5,7 +5,11 @@ from sqlalchemy.exc import IntegrityError
 from app.models import SensorData
 from app.extensions import SessionLocal
 from app.models import User, Device
-
+from app.influxdb_client import write_api, query_api, INFLUXDB_BUCKET, INFLUXDB_ORG
+from influxdb_client import Point
+import asyncio
+from datetime import datetime
+import json
 
 async def list_sensor_data(request):
     """
@@ -211,3 +215,47 @@ async def get_all_sensor_data_for_user(request):
                 for data in sensor_data
             ]
             return web.json_response(data_list)
+        
+
+async def get_sensor_data_for_user(request):
+    """
+    Get all sensor data from InfluxDB for a specific user based on the user_id.
+
+    Args:
+        request (web.Request): The request object containing the user ID in the path.
+
+    Returns:
+        web.Response: JSON response with the sensor data for the specified user.
+    """
+    user_id = request.match_info['user_id']
+    
+    # Define the InfluxDB query for fetching sensor data based on user_id
+    query = f'''
+    from(bucket: "{INFLUXDB_BUCKET}")
+      |> range(start: -1h)  # Adjust the time range as needed
+      |> filter(fn: (r) => r["_measurement"] == "sensor_data")
+      |> filter(fn: (r) => r["user_id"] == "{user_id}")
+      |> yield(name: "mean")
+    '''
+    
+    try:
+        # Query InfluxDB for the sensor data based on the user_id
+        result = query_api.query(query, org=INFLUXDB_ORG)
+        sensor_data = []
+        
+        # Format the result into a list of dictionaries
+        for table in result:
+            for record in table.records:
+                sensor_data.append({
+                    "id": record.get_value_by_key("device_id"),
+                    "data": record.get_value_by_key("data"),
+                    "timestamp": record.get_time().strftime('%Y-%m-%d %H:%M:%S'),
+                    "appId": record.get_value_by_key("appId"),
+                    "messageType": record.get_value_by_key("messageType"),
+                })
+        
+        # Return the sensor data as a JSON response
+        return web.json_response({"sensor_data": sensor_data})
+    
+    except Exception as e:
+        return web.json_response({"error": f"Failed to query sensor data: {str(e)}"}, status=500)

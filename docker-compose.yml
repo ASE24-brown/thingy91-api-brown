@@ -8,10 +8,15 @@ services:
     volumes:
       - ./data:/thingy91-api-brown/data
     depends_on:
+      - influxdb
       - auth_server
     environment:
       LOG_LEVEL: INFO
       database_url: sqlite+aiosqlite:///data/thingy91.db
+      INFLUXDB_URL: http://influxdb:8086
+      INFLUXDB_TOKEN: f_UXpTfXcFaUylrtHvxj2IDRLHeYekwyjErwRpvmZ_kaV-pdBzqfnom_0XHqUMp3WhorKpvrlypj6tcifIDKOg==
+      INFLUXDB_ORG: your_org_name
+      INFLUXDB_BUCKET: your_bucket
     networks:
       - shared_network
 
@@ -23,6 +28,23 @@ services:
       - "8001:8001"
     environment:
       LOG_LEVEL: INFO
+    networks:
+      - shared_network
+
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
+    ports:
+      - "8086:8086"  # Port for InfluxDB UI and API
+    volumes:
+      - ./influxdb-data:/var/lib/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=adminpassword
+      - DOCKER_INFLUXDB_INIT_ORG=your_org
+      - DOCKER_INFLUXDB_INIT_BUCKET=your_bucket
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=YOUR_INFLUXDB_TOKEN
     networks:
       - shared_network
 
