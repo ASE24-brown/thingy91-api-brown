@@ -1,4 +1,4 @@
-from app.control.sensor_controller import list_sensor_data, clear_sensor_data, add_sensor_data, show_sensor_data, update_sensor_data, remove_sensor_data, get_sensor_data, get_all_sensor_data_for_user, get_sensor_data_for_user
+from app.control.sensor_controller import list_sensor_data, clear_sensor_data, add_sensor_data, show_sensor_data, update_sensor_data, remove_sensor_data, get_sensor_data, get_all_sensor_data_for_user, get_sensor_data_for_user, query_influx_data
 
 def setup_sensor_routes(app):
     """
@@ -27,3 +27,4 @@ def setup_sensor_routes(app):
     app.router.add_get('/api/sensor-data', get_sensor_data)
     app.router.add_get('/sensor_data/user/{user_id}', get_all_sensor_data_for_user)
     app.router.add_get('/get_influx_sensor_data/user/{user_id}', get_sensor_data_for_user)
+    app.router.add_post('/api/query', query_influx_data)

@@ -111,7 +111,7 @@ async def insert_data(session: AsyncSession, data: dict, device_id: str):
             .tag("user_id", device.user_id) \
             .tag("appId", appId) \
             .tag("messageType", messageType) \
-            .field("data", json.dumps(data_field)) \
+            .field("data", float(data_field)) \
             .field("ts", int(ts)) \
             .time(datetime.utcnow())
 
