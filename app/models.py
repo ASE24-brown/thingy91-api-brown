@@ -8,12 +8,12 @@ from datetime import datetime
 class User(Base):
     __tablename__ = 'user'
 
-    id = Column(Integer, primary_key=True, index=True) # primary key of the table
+    id = Column(Integer, primary_key=True,autoincrement=True, index=True) # primary key of the table
     username = Column(String, unique=True, index=True, nullable=False) # unique username for each user
     email = Column(String, unique=True, index=True, nullable=False)    # unique email for each user
     password = Column(String, nullable=False) # password for each user
     sensordata = relationship('SensorData', back_populates='user') # relationship to SensorData
-    profile = relationship("Profile", back_populates="user")
+    profile = relationship('Profile', back_populates='user') # relationship to Profile
     device = relationship('Device', back_populates='user', uselist=False) # relationship to Device
 
     def set_password(self, password):
@@ -59,12 +59,12 @@ class Device(Base):
 
     id = Column(Integer, primary_key=True, index=True)  # Primary key
     name = Column(String, unique=True, nullable=False)  # Name or identifier of the device
-    user_id = Column(Integer, ForeignKey('user.id'))     # Foreign key to associate with a user
+    user_id = Column(Integer, ForeignKey('user.id'), nullable=True)     # Foreign key to associate with a user
     user = relationship('User', back_populates='device')  # Relationship to User
     sensordata = relationship('SensorData', back_populates='device')  # Relationship to SensorData
     status = Column(Integer, nullable=False)  # Status of the device
     last_updated = Column(DateTime, nullable=False, default=datetime.now)  # Last updated timestamp
-    
+
 class Profile(Base):
     __tablename__ = 'profile'
 
@@ -75,4 +75,3 @@ class Profile(Base):
     level = Column(Integer) # level of the profile
     user_id = Column(Integer, ForeignKey('user.id', ondelete='SET NULL')) # foreign key to profile table
     user = relationship("User", back_populates="profile")
-

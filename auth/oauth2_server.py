@@ -221,6 +221,7 @@ class AuthorizationCodeGrant(grants.AuthorizationCodeGrant):
         logger.info(f"Authenticating user with authorization code: {authorization_code}")
         return {'user_id': 'user'}
 
+
 def save_token(token, request):
     """
     Save the token.
@@ -230,7 +231,6 @@ def save_token(token, request):
     """
     logger.info(f"Saving token: {token}")
     #tokens[token['access_token']] = token
-
 
 @app.route('/oauth/authorize', methods=['GET', 'POST'])
 def authorize():
@@ -255,77 +255,6 @@ def authorize():
 
     # Redirect to the client with the authorization code
     return redirect(f"{redirect_uri}?code={code}&state={state}")
-
-
-
-@app.route('/oauth/authorize2', methods=['GET', 'POST'])
-def authorize2():
-    """
-    Handle the authorization request.
-
-    :return: The authorization response.
-    """
-    if request.method == 'GET':
-        # Display the authorization page
-        client_id = request.args.get('client_id')
-        redirect_uri = request.args.get('redirect_uri')
-        response_type = request.args.get('response_type')
-        scope = request.args.get('scope')
-        state = request.args.get('state')
-        code_challenge = request.args.get('code_challenge')
-        code_challenge_method = request.args.get('code_challenge_method', 'plain')  # Default to plain if not provided
-        
-        logger.info(f"Authorization request: client_id={client_id}, redirect_uri={redirect_uri}, "
-                    f"response_type={response_type}, scope={scope}, state={state}, "
-                    f"code_challenge={code_challenge}, code_challenge_method={code_challenge_method}")
-        
-        # Render the authorization page (example)
-        return f'''
-        <form method="post">
-            <p>Client ID: <input type="text" id="client_id" name="client_id" value="{client_id or ''}"></p>
-            <p>Redirect URI: <input type="text" id="redirect_uri" name="redirect_uri" value="{redirect_uri or ''}"></p>
-            <p>Response Type: <input type="text" id="response_type" name="response_type" value="{response_type or ''}"></p>
-            <p>Scope: <input type="text" id="scope" name="scope" value="{scope or ''}"></p>
-            <p>State: <input type="text" id="state" name="state" value="{state or ''}"></p>
-            <button type="submit">Authorize</button>
-            <input type="hidden" id="code_challenge" name="code_challenge" value="{code_challenge or ''}">
-            <input type="hidden" id="code_challenge_method" name="code_challenge_method" value="{code_challenge_method or ''}">
-            <button type="submit">Authorize</button>
-        </form>
-        '''
-    if request.method == 'POST':
-        # Handle the authorization request
-        code = str(uuid.uuid4())  # Generate a real authorization code
-        client_id = request.form.get('client_id')
-        redirect_uri = request.form.get('redirect_uri')
-        scope = request.form.get('scope')
-        state = request.form.get('state')
-        code_challenge = request.form.get('code_challenge')
-        code_challenge_method = request.form.get('code_challenge_method', 'plain')
-        authorization_code = {
-            'code': code,
-            'client_id': client_id,
-            'redirect_uri': redirect_uri,
-            'scope': scope,
-            'state': state,
-            'code_challenge': code_challenge,
-            'code_challenge_method': code_challenge_method
-        }
-        logger.info(f"Generated authorization code: {authorization_code}")
-        authorization_codes[code] = AuthorizationCode(
-            code=code,
-            client_id=client_id,
-            redirect_uri=redirect_uri,
-            scope=scope,
-            state=state
-        )
-        # Add code_challenge and code_challenge_method to the saved authorization code object
-        authorization_codes[code].code_challenge = code_challenge
-        authorization_codes[code].code_challenge_method = code_challenge_method
-        
-        return redirect(f'{redirect_uri}?code={code}')
-
-
 
 
 @app.route('/oauth/token', methods=['POST'])
@@ -363,36 +292,6 @@ def token():
         "scope": auth_code_data.scope,
     })
 
-
-
-@app.route('/oauth/token2', methods=['POST'])
-def issue_token():
-    """
-    Issue the access token.
-
-    """
-    client_id = request.form.get('client_id')
-    client_secret = request.form.get('client_secret')
-    logger.info(f"Received token request: client_id={client_id}, client_secret={client_secret}")
-
-    client = query_client(client_id, client_secret)
-    if not client:
-        logger.warning(f"Invalid client credentials: client_id={client_id}, client_secret={client_secret}")
-        return jsonify({"error": "invalid_client"}), 401
-
-    try:
-        logger.info("Generating token response")
-        token = generate_access_token(client)
-        token_response = {
-            'access_token': token,
-            'token_type': 'Bearer',
-            'expires_in': 3600  # Token validity in seconds
-        }
-        logger.info(f"Generated token response: {token_response}")
-        return jsonify(token_response), 200
-    except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        return jsonify({"error": "server_error"}), 500
 
 authorization.save_token = save_token
 authorization.query_client = query_client

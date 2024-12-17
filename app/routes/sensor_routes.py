@@ -1,16 +1,8 @@
-from aiohttp import web
-from sqlalchemy.future import select
-from sqlalchemy.sql.expression import delete
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import selectinload
-from app.models import User, Profile, SensorData
-from app.extensions import SessionLocal
-from app.handlers.sensor_handlers import list_sensor_data, clear_sensor_data, add_sensor_data, show_sensor_data, update_sensor_data, remove_sensor_data, get_sensor_data
-
+from app.control.sensor_controller import list_sensor_data, clear_sensor_data, add_sensor_data, show_sensor_data, update_sensor_data, remove_sensor_data, get_sensor_data, get_all_sensor_data_for_user
 
 def setup_sensor_routes(app):
     """
-    Sets up the RESTful API routes for the aiohttp application with OpenAPI-compatible documentation for aiohttp-swagger.
+    Sets up the RESTful API routes for the aiohttp application.
 
     Args:
         app (aiohttp.web.Application): The aiohttp application instance.
@@ -28,8 +20,9 @@ def setup_sensor_routes(app):
     app.router.add_get('/sensor_data/', list_sensor_data)
     app.router.add_delete('/sensor_data/', clear_sensor_data)
     app.router.add_post('/sensor_data/', add_sensor_data)
+    
     app.router.add_get('/sensor_data/{id}', show_sensor_data)
     app.router.add_patch('/sensor_data/{id}', update_sensor_data)
     app.router.add_delete('/sensor_data/{id}', remove_sensor_data)
-
     app.router.add_get('/api/sensor-data', get_sensor_data)
+    app.router.add_get('/sensor_data/user/{user_id}', get_all_sensor_data_for_user)

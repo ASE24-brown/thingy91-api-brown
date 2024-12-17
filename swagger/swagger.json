@@ -307,6 +307,288 @@
             }
           }
         }
+      },
+      "/sensor_data/": {
+        "get": {
+          "summary": "Retrieve a list of all sensor data",
+          "description": "Retrieves a list of all sensor data from the database.",
+          "tags": ["SensorData"],
+          "responses": {
+            "200": {
+              "description": "A list of sensor data",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "appId": {
+                          "type": "string"
+                        },
+                        "data": {
+                          "type": "string"
+                        },
+                        "messageType": {
+                          "type": "string"
+                        },
+                        "timestamp": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "user_id": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "summary": "Delete all sensor data",
+          "description": "Deletes all sensor data from the database.",
+          "tags": ["SensorData"],
+          "responses": {
+            "204": {
+              "description": "Sensor data deleted successfully"
+            }
+          }
+        },
+        "post": {
+          "summary": "Create new sensor data",
+          "description": "Creates new sensor data in the database.",
+          "tags": ["SensorData"],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user_id": {
+                      "type": "integer",
+                      "description": "ID of the user associated with the sensor data"
+                    },
+                    "appId": {
+                      "type": "string",
+                      "description": "Application ID"
+                    },
+                    "data": {
+                      "type": "string",
+                      "description": "Sensor data"
+                    },
+                    "messageType": {
+                      "type": "string",
+                      "description": "Type of the message"
+                    },
+                    "ts": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Timestamp of the sensor data"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Sensor data created successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "appId": {
+                        "type": "string"
+                      },
+                      "data": {
+                        "type": "string"
+                      },
+                      "messageType": {
+                        "type": "string"
+                      },
+                      "timestamp": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "user_id": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Failed to add sensor data"
+            }
+          }
+        }
+      },
+      "/sensor_data/{id}": {
+        "get": {
+          "summary": "Retrieve specific sensor data by ID",
+          "description": "Retrieves specific sensor data from the database by its ID.",
+          "tags": ["SensorData"],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "A sensor data object",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "appId": {
+                        "type": "string"
+                      },
+                      "data": {
+                        "type": "string"
+                      },
+                      "messageType": {
+                        "type": "string"
+                      },
+                      "timestamp": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "user_id": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Sensor data not found"
+            }
+          }
+        },
+        "put": {
+          "summary": "Update specific sensor data by ID",
+          "description": "Updates specific sensor data in the database by its ID.",
+          "tags": ["SensorData"],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "appId": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "string"
+                    },
+                    "messageType": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "user_id": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Sensor data updated successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "appId": {
+                        "type": "string"
+                      },
+                      "data": {
+                        "type": "string"
+                      },
+                      "messageType": {
+                        "type": "string"
+                      },
+                      "timestamp": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "user_id": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Sensor data not found"
+            }
+          }
+        },
+        "delete": {
+          "summary": "Delete specific sensor data by ID",
+          "description": "Deletes specific sensor data from the database by its ID.",
+          "tags": ["SensorData"],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Sensor data deleted successfully"
+            },
+            "404": {
+              "description": "Sensor data not found"
+            }
+          }
+        }
       }
     }
 }

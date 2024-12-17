@@ -1,10 +1,12 @@
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-DATABASE_URL = 'sqlite+aiosqlite:///./thingy91.db'
+#DATABASE_URL = 'sqlite+aiosqlite:///./thingy91.db'
+
+DATABASE_URL = 'sqlite+aiosqlite:///./data/thingy91.db'
 
 engine: AsyncEngine = create_async_engine(DATABASE_URL, echo=True)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=AsyncSession)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=AsyncSession,expire_on_commit=False)
 Base = declarative_base()
 
 async def init_db():
