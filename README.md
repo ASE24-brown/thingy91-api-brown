@@ -82,7 +82,7 @@ Before you begin, ensure you have met the following requirements:
 5. Run in two terminals, in the first one run :
 
    ```sh
-   python auth/oauth2_server.py
+   python auth.oauth2_server.py
    ```
 
 6. then in a second terminal, run
@@ -97,6 +97,7 @@ Before you begin, ensure you have met the following requirements:
   SQLAlchemy: A SQL toolkit and Object-Relational Mapping (ORM) library for Python.
   Paho MQTT: A Python client library for the MQTT protocol.
   SQLite: A C library that provides a lightweight, disk-based database.
+   ```
 
 ## License
 
