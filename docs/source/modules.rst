@@ -7,5 +7,4 @@ thingy91-api-brown
    app
    auth
    config
-   mqtt
    run

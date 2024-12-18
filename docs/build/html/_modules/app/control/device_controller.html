@@ -4,11 +4,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>app.handlers.device_handlers &#8212; AlertMe 0.1 documentation</title>
+    <title>app.control.device_controller &#8212; AlertMate 1.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=d1102ebc" />
     <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=27fed22d" />
-    <script src="../../../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -30,22 +30,38 @@
 
           <div class="body" role="main">
             
-  <h1>Source code for app.handlers.device_handlers</h1><div class="highlight"><pre>
+  <h1>Source code for app.control.device_controller</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">aiohttp</span> <span class="kn">import</span> <span class="n">web</span>
 <span class="kn">from</span> <span class="nn">sqlalchemy.future</span> <span class="kn">import</span> <span class="n">select</span>
-<span class="kn">from</span> <span class="nn">sqlalchemy.exc</span> <span class="kn">import</span> <span class="n">IntegrityError</span>
-<span class="kn">from</span> <span class="nn">app.models</span> <span class="kn">import</span> <span class="n">User</span><span class="p">,</span> <span class="n">SensorData</span><span class="p">,</span> <span class="n">Device</span>
-<span class="kn">from</span> <span class="nn">app.extensions</span> <span class="kn">import</span> <span class="n">SessionLocal</span>
+<span class="kn">from</span> <span class="nn">app.model.device</span> <span class="kn">import</span> <span class="n">Device</span>
+<span class="kn">from</span> <span class="nn">app.model.sensor_data</span> <span class="kn">import</span> <span class="n">SensorData</span>
+<span class="kn">from</span> <span class="nn">app.model.user</span> <span class="kn">import</span> <span class="n">User</span>
+<span class="kn">from</span> <span class="nn">app.database</span> <span class="kn">import</span> <span class="n">SessionLocal</span>
 <span class="kn">from</span> <span class="nn">sqlalchemy.ext.asyncio</span> <span class="kn">import</span> <span class="n">AsyncSession</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
 
 
-
 <div class="viewcode-block" id="check_device_status">
-<a class="viewcode-back" href="../../../app.handlers.html#app.handlers.device_handlers.check_device_status">[docs]</a>
+<a class="viewcode-back" href="../../../app.control.html#app.control.device_controller.check_device_status">[docs]</a>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">check_device_status</span><span class="p">(</span><span class="n">session</span><span class="p">:</span> <span class="n">AsyncSession</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check the status of devices and update their status if they are inactive.</span>
+
+<span class="sd">    This function queries the database for all devices and checks their last updated timestamp.</span>
+<span class="sd">    If a device has not been updated in the last 30 seconds, it is considered inactive and its status</span>
+<span class="sd">    is updated to 0. Otherwise, the device is considered active and its status remains 1.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        session (AsyncSession): The database session used to execute the query.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: A summary of the status updates.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        Exception: If there is an error while checking device statuses.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">select</span><span class="p">(</span><span class="n">Device</span><span class="p">))</span>
         <span class="n">devices</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">scalars</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
@@ -61,10 +77,8 @@
         <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error checking device statuses: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 
-
-<span class="c1">#Get All Sensor Data for a Device</span>
 <div class="viewcode-block" id="get_all_sensor_data_for_device">
-<a class="viewcode-back" href="../../../app.handlers.html#app.handlers.device_handlers.get_all_sensor_data_for_device">[docs]</a>
+<a class="viewcode-back" href="../../../app.control.html#app.control.device_controller.get_all_sensor_data_for_device">[docs]</a>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">get_all_sensor_data_for_device</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get all sensor data for a device.</span>
@@ -89,9 +103,8 @@
             <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">json_response</span><span class="p">(</span><span class="n">data_list</span><span class="p">)</span></div>
 
 
-
 <div class="viewcode-block" id="get_all_sensor_data_for_user_device">
-<a class="viewcode-back" href="../../../app.handlers.html#app.handlers.device_handlers.get_all_sensor_data_for_user_device">[docs]</a>
+<a class="viewcode-back" href="../../../app.control.html#app.control.device_controller.get_all_sensor_data_for_user_device">[docs]</a>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">get_all_sensor_data_for_user_device</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get all sensor data for a specific device belonging to a user.</span>
@@ -102,8 +115,8 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        web.Response: A JSON response with the sensor data for the specified device and user.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">user_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">match_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;user_id&#39;</span><span class="p">)</span>  <span class="c1"># Extract user_id from the request</span>
-    <span class="n">device_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">match_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;device_id&#39;</span><span class="p">)</span>  <span class="c1"># Extract device_id from the request</span>
+    <span class="n">user_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">match_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;user_id&#39;</span><span class="p">)</span>
+    <span class="n">device_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">match_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;device_id&#39;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">user_id</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">device_id</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">json_response</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;User ID and Device ID are required&quot;</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
@@ -134,9 +147,8 @@
             <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">json_response</span><span class="p">(</span><span class="n">data_list</span><span class="p">)</span></div>
 
 
-
 <div class="viewcode-block" id="get_all_device_statuses">
-<a class="viewcode-back" href="../../../app.handlers.html#app.handlers.device_handlers.get_all_device_statuses">[docs]</a>
+<a class="viewcode-back" href="../../../app.control.html#app.control.device_controller.get_all_device_statuses">[docs]</a>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">get_all_device_statuses</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get the status of all devices.</span>
@@ -179,7 +191,7 @@
 
 
 <div class="viewcode-block" id="get_device_status">
-<a class="viewcode-back" href="../../../app.handlers.html#app.handlers.device_handlers.get_device_status">[docs]</a>
+<a class="viewcode-back" href="../../../app.control.html#app.control.device_controller.get_device_status">[docs]</a>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">get_device_status</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get the status of a device.</span>
@@ -200,6 +212,9 @@
     <span class="k">async</span> <span class="k">with</span> <span class="n">SessionLocal</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
         <span class="k">async</span> <span class="k">with</span> <span class="n">session</span><span class="o">.</span><span class="n">begin</span><span class="p">():</span>
             <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Check and update device statuses within the same transaction</span>
+                <span class="k">await</span> <span class="n">check_device_status</span><span class="p">(</span><span class="n">session</span><span class="p">)</span>
+                
                 <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
                     <span class="n">select</span><span class="p">(</span><span class="n">Device</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Device</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">device_id</span><span class="p">)</span>
                 <span class="p">)</span>
@@ -219,78 +234,90 @@
                 <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error fetching device status: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">json_response</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Internal server error&quot;</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span></div>
 
-
-<span class="c1"># Get All Sensor Data for a User&#39;s Devices</span>
-<div class="viewcode-block" id="get_all_sensor_data_for_user_devices">
-<a class="viewcode-back" href="../../../app.handlers.html#app.handlers.device_handlers.get_all_sensor_data_for_user_devices">[docs]</a>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">get_all_sensor_data_for_user_devices</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-    <span class="k">async</span> <span class="k">with</span> <span class="n">SessionLocal</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
-        <span class="k">async</span> <span class="k">with</span> <span class="n">session</span><span class="o">.</span><span class="n">begin</span><span class="p">():</span>
-            <span class="n">user_id</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># Replace with the desired user ID</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="n">select</span><span class="p">(</span><span class="n">SensorData</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Device</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Device</span><span class="o">.</span><span class="n">user_id</span> <span class="o">==</span> <span class="n">user_id</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="n">sensor_data</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">scalars</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
-            <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">sensor_data</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">ts</span><span class="p">)</span></div>
-
-
-<span class="c1">#  Get Sensor Data with User and Device Info</span>
-<div class="viewcode-block" id="get_sensor_data_with_user_and_device_info">
-<a class="viewcode-back" href="../../../app.handlers.html#app.handlers.device_handlers.get_sensor_data_with_user_and_device_info">[docs]</a>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">get_sensor_data_with_user_and_device_info</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-    <span class="k">async</span> <span class="k">with</span> <span class="n">SessionLocal</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
-        <span class="k">async</span> <span class="k">with</span> <span class="n">session</span><span class="o">.</span><span class="n">begin</span><span class="p">():</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="n">select</span><span class="p">(</span><span class="n">SensorData</span><span class="p">,</span> <span class="n">Device</span><span class="p">,</span> <span class="n">User</span><span class="p">)</span>
-                <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Device</span><span class="p">,</span> <span class="n">SensorData</span><span class="o">.</span><span class="n">device_id</span> <span class="o">==</span> <span class="n">Device</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
-                <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">User</span><span class="p">,</span> <span class="n">Device</span><span class="o">.</span><span class="n">user_id</span> <span class="o">==</span> <span class="n">User</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="k">for</span> <span class="n">sensor_data</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;User: </span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2">, Device: </span><span class="si">{</span><span class="n">device</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, Data: </span><span class="si">{</span><span class="n">sensor_data</span><span class="o">.</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
-
-
+        
 <div class="viewcode-block" id="associate_user_to_device">
-<a class="viewcode-back" href="../../../app.handlers.html#app.handlers.device_handlers.associate_user_to_device">[docs]</a>
+<a class="viewcode-back" href="../../../app.control.html#app.control.device_controller.associate_user_to_device">[docs]</a>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">associate_user_to_device</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Associate a user to a device.</span>
+<span class="sd">    Associates a user to a device based on the provided user_id and device_id in the request.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        request (web.Request): The request object containing the user ID and device ID.</span>
+<span class="sd">        request (Request): The incoming HTTP request containing JSON data with user_id and device_id.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        web.Response: A JSON response indicating success or failure.</span>
+<span class="sd">        Response: A JSON response indicating the result of the association operation.</span>
+<span class="sd">                  - If user_id or device_id is missing, returns a 400 status with an error message.</span>
+<span class="sd">                  - If the user is not found, returns a 404 status with an error message.</span>
+<span class="sd">                  - If the device is not found, returns a 404 status with an error message.</span>
+<span class="sd">                  - If the association is successful, returns a 200 status with a success message.</span>
+<span class="sd">                  - If an exception occurs, returns a 500 status with an error message.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>  <span class="c1"># Parse the request body for user_id and device_id</span>
-    <span class="n">user_id</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user_id&quot;</span><span class="p">)</span>
-    <span class="n">device_id</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;device_id&quot;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="n">user_id</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user_id&quot;</span><span class="p">)</span>
+        <span class="n">device_id</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;device_id&quot;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">user_id</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">device_id</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">json_response</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;User ID and Device ID are required&quot;</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">user_id</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">device_id</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">json_response</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;User ID and Device ID are required&quot;</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">with</span> <span class="n">SessionLocal</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
-        <span class="k">async</span> <span class="k">with</span> <span class="n">session</span><span class="o">.</span><span class="n">begin</span><span class="p">():</span>
-            <span class="c1"># Check if the user exists</span>
-            <span class="n">user</span> <span class="o">=</span> <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">select</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">User</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">user_id</span><span class="p">))</span>
-            <span class="n">user</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">scalar_one_or_none</span><span class="p">()</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">json_response</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;User not found&quot;</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="mi">404</span><span class="p">)</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">SessionLocal</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+            <span class="k">async</span> <span class="k">with</span> <span class="n">session</span><span class="o">.</span><span class="n">begin</span><span class="p">():</span>
+                <span class="n">user</span> <span class="o">=</span> <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">select</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">User</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">user_id</span><span class="p">))</span>
+                <span class="n">user</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">scalar_one_or_none</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">json_response</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;User not found&quot;</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="mi">404</span><span class="p">)</span>
 
-            <span class="c1"># Check if the device exists</span>
-            <span class="n">device</span> <span class="o">=</span> <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">select</span><span class="p">(</span><span class="n">Device</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Device</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">device_id</span><span class="p">))</span>
-            <span class="n">device</span> <span class="o">=</span> <span class="n">device</span><span class="o">.</span><span class="n">scalar_one_or_none</span><span class="p">()</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">device</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">json_response</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Device not found&quot;</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="mi">404</span><span class="p">)</span>
+                <span class="n">device</span> <span class="o">=</span> <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">select</span><span class="p">(</span><span class="n">Device</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Device</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">device_id</span><span class="p">))</span>
+                <span class="n">device</span> <span class="o">=</span> <span class="n">device</span><span class="o">.</span><span class="n">scalar_one_or_none</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">device</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">json_response</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Device not found&quot;</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="mi">404</span><span class="p">)</span>
 
-            <span class="c1"># Associate the device with the user</span>
-            <span class="n">device</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">user_id</span>
-            <span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>  <span class="c1"># Mark the device for update</span>
+                <span class="n">device</span><span class="o">.</span><span class="n">user_id</span> <span class="o">=</span> <span class="n">user_id</span>
+                <span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+                <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 
-            <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">json_response</span><span class="p">({</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Device </span><span class="si">{</span><span class="n">device_id</span><span class="si">}</span><span class="s2"> is now associated with User </span><span class="si">{</span><span class="n">user_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span></div>
+                <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">json_response</span><span class="p">({</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Device </span><span class="si">{</span><span class="n">device_id</span><span class="si">}</span><span class="s2"> is now associated with User </span><span class="si">{</span><span class="n">user_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">json_response</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)},</span> <span class="n">status</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="disassociate_device_from_user">
+<a class="viewcode-back" href="../../../app.control.html#app.control.device_controller.disassociate_device_from_user">[docs]</a>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">disassociate_device_from_user</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Disassociates a device from a user based on the provided user_id in the request.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        request (Request): The incoming HTTP request containing JSON data with user_id.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Response: A JSON response indicating the result of the disassociation operation.</span>
+<span class="sd">                  - If user_id is missing, returns a 400 status with an error message.</span>
+<span class="sd">                  - If the user is not found, returns a 404 status with an error message.</span>
+<span class="sd">                  - If the disassociation is successful, returns a 200 status with a success message.</span>
+<span class="sd">                  - If an exception occurs, returns a 500 status with an error message.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="n">user_id</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user_id&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">user_id</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">json_response</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;User ID is required&quot;</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
+
+        <span class="k">async</span> <span class="k">with</span> <span class="n">SessionLocal</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+            <span class="k">async</span> <span class="k">with</span> <span class="n">session</span><span class="o">.</span><span class="n">begin</span><span class="p">():</span>
+                <span class="n">user</span> <span class="o">=</span> <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">select</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">User</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">user_id</span><span class="p">))</span>
+                <span class="n">user</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">scalar_one_or_none</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">json_response</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;User not found&quot;</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="mi">404</span><span class="p">)</span>
+
+                <span class="n">user</span><span class="o">.</span><span class="n">device_id</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+                <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+                <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">json_response</span><span class="p">({</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;User </span><span class="si">{</span><span class="n">user_id</span><span class="si">}</span><span class="s2"> is now disassociated from any device&quot;</span><span class="p">})</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">json_response</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)},</span> <span class="n">status</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span></div>
 
 </pre></div>
 
@@ -300,7 +327,7 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../../../index.html">AlertMe</a></h1>
+<h1 class="logo"><a href="../../../index.html">AlertMate</a></h1>
 
 
 
@@ -348,7 +375,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &#169;2024, ASE24 Brown-team.
+      &#169;2024, ASE24 Brown-Team.
       
       |
       Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>

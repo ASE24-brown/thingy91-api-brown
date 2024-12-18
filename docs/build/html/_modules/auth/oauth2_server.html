@@ -4,11 +4,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>auth.oauth2_server &#8212; AlertMe 0.1 documentation</title>
+    <title>auth.oauth2_server &#8212; AlertMate 1.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d1102ebc" />
     <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=27fed22d" />
-    <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -42,15 +42,13 @@
 <span class="kn">from</span> <span class="nn">authlib.oauth2.rfc6749.errors</span> <span class="kn">import</span> <span class="n">OAuth2Error</span>
 <span class="kn">from</span> <span class="nn">authlib.oauth2.rfc6749.models</span> <span class="kn">import</span> <span class="n">ClientMixin</span>
 <span class="kn">from</span> <span class="nn">dotenv</span> <span class="kn">import</span> <span class="n">load_dotenv</span>
+<span class="kn">from</span> <span class="nn">.routes</span> <span class="kn">import</span> <span class="n">oauth_bp</span>
 
 <span class="n">load_dotenv</span><span class="p">()</span>
 
 <span class="n">SECRET_KEY</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SECRET_KEY&quot;</span><span class="p">)</span>
 <span class="n">CLIENT_ID</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;CLIENT_ID&quot;</span><span class="p">)</span>
 <span class="n">CLIENT_SECRET</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;CLIENT_SECRET&quot;</span><span class="p">)</span>
-
-<span class="c1"># Allow insecure transport for development</span>
-<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;AUTHLIB_INSECURE_TRANSPORT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;1&#39;</span>
 
 <span class="c1"># Set the logging level based on an environment variable, default to INFO</span>
 <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
@@ -82,12 +80,13 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the Client with the given parameters.</span>
 
-<span class="sd">        :param client_id: The client ID for the OAuth2 application.</span>
-<span class="sd">        :param client_secret: The client secret for the OAuth2 application.</span>
-<span class="sd">        :param redirect_uris: List of allowed redirect URIs.</span>
-<span class="sd">        :param scope: The scope of the OAuth2 application.</span>
-<span class="sd">        :param token_endpoint_auth_method: The authentication method for the token endpoint.</span>
-<span class="sd">        :param grant_types: List of allowed grant types.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            client_id (str): The client ID for the OAuth2 application.</span>
+<span class="sd">            client_secret (str): The client secret for the OAuth2 application.</span>
+<span class="sd">            redirect_uris (list): List of allowed redirect URIs.</span>
+<span class="sd">            scope (str): The scope of the OAuth2 application.</span>
+<span class="sd">            token_endpoint_auth_method (str): The authentication method for the token endpoint.</span>
+<span class="sd">            grant_types (list): List of allowed grant types.</span>
 <span class="sd">        &quot;&quot;&quot;</span>        
         <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">client_id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">client_id</span> <span class="o">=</span> <span class="n">client_id</span>
@@ -102,6 +101,9 @@
     <span class="k">def</span> <span class="nf">get_client_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the client ID.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The client ID.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_id</span></div>
 
@@ -111,6 +113,9 @@
     <span class="k">def</span> <span class="nf">get_default_redirect_uri</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the default redirect URI.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The default redirect URI.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">redirect_uris</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
@@ -120,6 +125,12 @@
     <span class="k">def</span> <span class="nf">get_allowed_scope</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scope</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the allowed scope.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            scope (str): The requested scope.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The allowed scope.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">scope</span></div>
 
@@ -129,6 +140,12 @@
     <span class="k">def</span> <span class="nf">check_client_secret</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client_secret</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if the provided client_secret matches the stored one.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            client_secret (str): The client secret to check.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if the client secret matches, False otherwise.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span> <span class="o">==</span> <span class="n">client_secret</span></div>
 
@@ -138,6 +155,12 @@
     <span class="k">def</span> <span class="nf">check_redirect_uri</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">redirect_uri</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if the provided redirect_uri is allowed.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            redirect_uri (str): The redirect URI to check.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if the redirect URI is allowed, False otherwise.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">redirect_uri</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">redirect_uris</span></div>
 
@@ -147,6 +170,12 @@
     <span class="k">def</span> <span class="nf">check_response_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response_type</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if the provided response_type is allowed.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            response_type (str): The response type to check.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if the response type is allowed, False otherwise.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">response_type</span> <span class="o">==</span> <span class="s1">&#39;code&#39;</span></div>
 
@@ -156,6 +185,12 @@
     <span class="k">def</span> <span class="nf">check_grant_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grant_type</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if the provided grant_type is allowed.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            grant_type (str): The grant type to check.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if the grant type is allowed, False otherwise.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">grant_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grant_types</span></div>
 
@@ -165,6 +200,13 @@
     <span class="k">def</span> <span class="nf">check_endpoint_auth_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if the provided endpoint authentication method is allowed.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            method (str): The authentication method to check.</span>
+<span class="sd">            endpoint (str): The endpoint to check.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if the authentication method is allowed, False otherwise.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">token_endpoint_auth_method</span> <span class="o">==</span> <span class="n">method</span></div>
 
@@ -174,6 +216,9 @@
     <span class="k">def</span> <span class="nf">get_redirect_uri</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the redirect URI.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The redirect URI.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">redirect_uris</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 </div>
@@ -194,9 +239,12 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Query the client based on client_id and optionally client_secret.</span>
 
-<span class="sd">    :param client_id: The client ID to query.</span>
-<span class="sd">    :param client_secret: The client secret to verify.</span>
-<span class="sd">    :return: The Client object if found and verified, otherwise None.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        client_id (str): The client ID to query.</span>
+<span class="sd">        client_secret (str, optional): The client secret to verify.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Client: The Client object if found and verified, otherwise None.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Querying client with client_id=</span><span class="si">{</span><span class="n">client_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">client</span> <span class="o">=</span> <span class="n">clients</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">client_id</span><span class="p">)</span>
@@ -213,13 +261,14 @@
 <a class="viewcode-back" href="../../auth.html#auth.oauth2_server.AuthorizationCode">[docs]</a>
 <span class="k">class</span> <span class="nc">AuthorizationCode</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Initialize the AuthorizationCode with the given parameters.</span>
+<span class="sd">    Represents an OAuth2 authorization code.</span>
 
-<span class="sd">    :param code: The authorization code.</span>
-<span class="sd">    :param client_id: The client ID associated with the code.</span>
-<span class="sd">    :param redirect_uri: The redirect URI associated with the code.</span>
-<span class="sd">    :param scope: The scope associated with the code.</span>
-<span class="sd">    :param state: The state associated with the code.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        code (str): The authorization code.</span>
+<span class="sd">        client_id (str): The client ID associated with the code.</span>
+<span class="sd">        redirect_uri (str): The redirect URI associated with the code.</span>
+<span class="sd">        scope (str): The scope associated with the code.</span>
+<span class="sd">        state (str): The state associated with the code.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">client_id</span><span class="p">,</span> <span class="n">redirect_uri</span><span class="p">,</span> <span class="n">scope</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -236,6 +285,9 @@
     <span class="k">def</span> <span class="nf">get_redirect_uri</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the redirect URI.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The redirect URI.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">redirect_uri</span></div>
 
@@ -245,6 +297,9 @@
     <span class="k">def</span> <span class="nf">get_scope</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the scope.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The scope.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">scope</span></div>
 </div>
@@ -260,8 +315,9 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save the authorization code.</span>
 
-<span class="sd">        :param code: The authorization code to save.</span>
-<span class="sd">        :param request: The request object.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            code (dict): The authorization code to save.</span>
+<span class="sd">            request (Request): The request object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saving authorization code: </span><span class="si">{</span><span class="n">code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">authorization_code</span> <span class="o">=</span> <span class="n">AuthorizationCode</span><span class="p">(</span>
@@ -280,9 +336,12 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Query the authorization code.</span>
 
-<span class="sd">        :param code: The authorization code to query.</span>
-<span class="sd">        :param client: The client associated with the code.</span>
-<span class="sd">        :return: The authorization code if found, otherwise None.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            code (str): The authorization code to query.</span>
+<span class="sd">            client (Client): The client associated with the code.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            AuthorizationCode: The authorization code if found, otherwise None.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Querying authorization code: </span><span class="si">{</span><span class="n">code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">authorization_codes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">code</span><span class="p">)</span></div>
@@ -294,7 +353,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Delete the authorization code.</span>
 
-<span class="sd">        :param authorization_code: The authorization code to delete.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            authorization_code (AuthorizationCode): The authorization code to delete.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deleting authorization code: </span><span class="si">{</span><span class="n">authorization_code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">authorization_codes</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">authorization_code</span><span class="o">.</span><span class="n">code</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
@@ -306,8 +366,11 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Authenticate the user with the authorization code.</span>
 
-<span class="sd">        :param authorization_code: The authorization code to authenticate.</span>
-<span class="sd">        :return: The user information.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            authorization_code (AuthorizationCode): The authorization code to authenticate.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: The user information.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Authenticating user with authorization code: </span><span class="si">{</span><span class="n">authorization_code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;user_id&#39;</span><span class="p">:</span> <span class="s1">&#39;user&#39;</span><span class="p">}</span></div>
@@ -321,79 +384,18 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Save the token.</span>
 
-<span class="sd">    :param token: The token to save.</span>
-<span class="sd">    :param request: The request object.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        token (dict): The token to save.</span>
+<span class="sd">        request (Request): The request object.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saving token: </span><span class="si">{</span><span class="n">token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
-
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saving token: </span><span class="si">{</span><span class="n">token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="c1">#tokens[token[&#39;access_token&#39;]] = token</span>
-
-<div class="viewcode-block" id="authorize">
-<a class="viewcode-back" href="../../auth.html#auth.oauth2_server.authorize">[docs]</a>
-<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/oauth/authorize&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="s1">&#39;POST&#39;</span><span class="p">])</span>
-<span class="k">def</span> <span class="nf">authorize</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Handle the authorization request without showing a form.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">client_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;client_id&#39;</span><span class="p">)</span>
-    <span class="n">redirect_uri</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;redirect_uri&#39;</span><span class="p">)</span>
-    <span class="n">scope</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;scope&#39;</span><span class="p">)</span>
-    <span class="n">state</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;state&#39;</span><span class="p">)</span>
-    <span class="n">response_type</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;response_type&#39;</span><span class="p">)</span>
-
-    <span class="c1"># Automatically generate an authorization code</span>
-    <span class="n">code</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
-    <span class="n">authorization_codes</span><span class="p">[</span><span class="n">code</span><span class="p">]</span> <span class="o">=</span> <span class="n">AuthorizationCode</span><span class="p">(</span>
-        <span class="n">code</span><span class="o">=</span><span class="n">code</span><span class="p">,</span>
-        <span class="n">client_id</span><span class="o">=</span><span class="n">client_id</span><span class="p">,</span>
-        <span class="n">redirect_uri</span><span class="o">=</span><span class="n">redirect_uri</span><span class="p">,</span>
-        <span class="n">scope</span><span class="o">=</span><span class="n">scope</span><span class="p">,</span>
-        <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
-    <span class="p">)</span>
-
-    <span class="c1"># Redirect to the client with the authorization code</span>
-    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">redirect_uri</span><span class="si">}</span><span class="s2">?code=</span><span class="si">{</span><span class="n">code</span><span class="si">}</span><span class="s2">&amp;state=</span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">token</span></div>
 
 
+<span class="kn">from</span> <span class="nn">auth.routes</span> <span class="kn">import</span> <span class="n">oauth_bp</span>
 
-<div class="viewcode-block" id="token">
-<a class="viewcode-back" href="../../auth.html#auth.oauth2_server.token">[docs]</a>
-<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/oauth/token&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
-<span class="k">def</span> <span class="nf">token</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Exchange authorization code for an access token.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">code</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;code&#39;</span><span class="p">)</span>
-    <span class="n">client_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;client_id&#39;</span><span class="p">)</span>
-    <span class="n">redirect_uri</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;redirect_uri&#39;</span><span class="p">)</span>
-
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Token request received: code=</span><span class="si">{</span><span class="n">code</span><span class="si">}</span><span class="s2">, client_id=</span><span class="si">{</span><span class="n">client_id</span><span class="si">}</span><span class="s2">, redirect_uri=</span><span class="si">{</span><span class="n">redirect_uri</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-    <span class="c1"># Validate the authorization code</span>
-    <span class="k">if</span> <span class="n">code</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">authorization_codes</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Invalid or expired authorization code.&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;invalid_grant&quot;</span><span class="p">}),</span> <span class="mi">400</span>
-
-    <span class="n">auth_code_data</span> <span class="o">=</span> <span class="n">authorization_codes</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>  <span class="c1"># Remove the code after use</span>
-
-    <span class="c1"># Validate client_id and redirect_uri</span>
-    <span class="k">if</span> <span class="n">auth_code_data</span><span class="o">.</span><span class="n">client_id</span> <span class="o">!=</span> <span class="n">client_id</span> <span class="ow">or</span> <span class="n">auth_code_data</span><span class="o">.</span><span class="n">redirect_uri</span> <span class="o">!=</span> <span class="n">redirect_uri</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Invalid client_id or redirect_uri.&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;invalid_client&quot;</span><span class="p">}),</span> <span class="mi">400</span>
-
-    <span class="c1"># Generate an access token (and optionally a refresh token)</span>
-    <span class="n">access_token</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Access token generated: </span><span class="si">{</span><span class="n">access_token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-    <span class="c1"># Send the token response</span>
-    <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
-        <span class="s2">&quot;access_token&quot;</span><span class="p">:</span> <span class="n">access_token</span><span class="p">,</span>
-        <span class="s2">&quot;token_type&quot;</span><span class="p">:</span> <span class="s2">&quot;Bearer&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;expires_in&quot;</span><span class="p">:</span> <span class="mi">3600</span><span class="p">,</span>  <span class="c1"># Token expiry in seconds</span>
-        <span class="s2">&quot;scope&quot;</span><span class="p">:</span> <span class="n">auth_code_data</span><span class="o">.</span><span class="n">scope</span><span class="p">,</span>
-    <span class="p">})</span></div>
-
-
+<span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">oauth_bp</span><span class="p">)</span>
 
 <span class="n">authorization</span><span class="o">.</span><span class="n">save_token</span> <span class="o">=</span> <span class="n">save_token</span>
 <span class="n">authorization</span><span class="o">.</span><span class="n">query_client</span> <span class="o">=</span> <span class="n">query_client</span>
@@ -411,7 +413,7 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../../index.html">AlertMe</a></h1>
+<h1 class="logo"><a href="../../index.html">AlertMate</a></h1>
 
 
 
@@ -430,6 +432,10 @@
     </div>
 </search>
 <script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">thingy91-api-brown</a></li>
+</ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
@@ -453,7 +459,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &#169;2024, ASE24 Brown-team.
+      &#169;2024, ASE24 Brown-Team.
       
       |
       Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>

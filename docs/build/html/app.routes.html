@@ -5,15 +5,17 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>app.routes package &#8212; AlertMe 0.1 documentation</title>
+    <title>app.routes package &#8212; AlertMate 1.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
-    <script src="_static/documentation_options.js?v=2709fde1"></script>
+    <script src="_static/documentation_options.js?v=f2a433a1"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="auth package" href="auth.html" />
+    <link rel="prev" title="app.mqtt package" href="app.mqtt.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -74,6 +76,9 @@
 <li><p>GET /devices/{device_id}/data: Retrieves all sensor data for a specific device.</p></li>
 <li><p>GET /devices/{device_id}/status: Retrieves the status of a specific device.</p></li>
 <li><p>GET /devices/status: Retrieves the status of all devices.</p></li>
+<li><p>POST /associate-user-to-device: Associates a user to a device.</p></li>
+<li><p>POST /disassociate-device-from-user: Disassociates a device from a user.</p></li>
+<li><p>GET /users/{user_id}/devices/{device_id}/data: Retrieves all sensor data for a specific device belonging to a user.</p></li>
 </ul>
 </dd>
 </dl>
@@ -125,6 +130,7 @@
 <li><p>GET /users/{id}: Retrieves a specific user by ID.</p></li>
 <li><p>PATCH /users/{id}: Updates a specific user by ID.</p></li>
 <li><p>DELETE /users/{id}: Deletes a specific user by ID.</p></li>
+<li><p>GET /users/get_id: Retrieves the user ID by username.</p></li>
 </ul>
 </dd>
 </dl>
@@ -139,7 +145,7 @@
 <dd><p>Configure all the routes for the application.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>app</strong> – Instance of the aiohttp application</p>
+<dd class="field-odd"><p><strong>app</strong> (<em>aiohttp.web.Application</em>) – Instance of the aiohttp application.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -154,7 +160,7 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">AlertMe</a></h1>
+<h1 class="logo"><a href="index.html">AlertMate</a></h1>
 
 
 
@@ -173,11 +179,27 @@
     </div>
 </search>
 <script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">thingy91-api-brown</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="app.html">app package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="auth.html">auth package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html">config module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="run.html">run module</a></li>
+</ul>
+</li>
+</ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">thingy91-api-brown</a><ul>
+  <li><a href="app.html">app package</a><ul>
+      <li>Previous: <a href="app.mqtt.html" title="previous chapter">app.mqtt package</a></li>
+      <li>Next: <a href="auth.html" title="next chapter">auth package</a></li>
+  </ul></li>
+  </ul></li>
   </ul></li>
 </ul>
 </div>
@@ -194,7 +216,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &#169;2024, ASE24 Brown-team.
+      &#169;2024, ASE24 Brown-Team.
       
       |
       Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
