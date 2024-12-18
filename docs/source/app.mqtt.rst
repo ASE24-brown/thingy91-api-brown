@@ -1,13 +1,13 @@
-mqtt package
-============
+app.mqtt package
+================
 
 Submodules
 ----------
 
-mqtt.mqtt\_handler module
--------------------------
+app.mqtt.mqtt\_handler module
+-----------------------------
 
-.. automodule:: mqtt.mqtt_handler
+.. automodule:: app.mqtt.mqtt_handler
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ mqtt.mqtt\_handler module
 Module contents
 ---------------
 
-.. automodule:: mqtt
+.. automodule:: app.mqtt
    :members:
    :undoc-members:
    :show-inheritance:

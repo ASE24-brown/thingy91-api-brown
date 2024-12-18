@@ -12,6 +12,14 @@ auth.auth module
    :undoc-members:
    :show-inheritance:
 
+auth.handlers module
+--------------------
+
+.. automodule:: auth.handlers
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 auth.login module
 -----------------
 
@@ -24,6 +32,14 @@ auth.oauth2\_server module
 --------------------------
 
 .. automodule:: auth.oauth2_server
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+auth.routes module
+------------------
+
+.. automodule:: auth.routes
    :members:
    :undoc-members:
    :show-inheritance:

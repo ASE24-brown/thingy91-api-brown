@@ -5,22 +5,26 @@
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
+
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../'))  # Adjust path as needed
 
-project = 'AlertMe'
-copyright = '2024, ASE24 Brown-team'
-author = 'ASE24 Brown-team'
-release = '0.1'
+# Add the project root directory to the Python path
+sys.path.insert(0, os.path.abspath('../..'))
+
+
+project = 'AlertMate'
+copyright = '2024, ASE24 Brown-Team'
+author = 'ASE24 Brown-Team'
+release = '1.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
-    'sphinx.ext.viewcode'
 ]
 
 templates_path = ['_templates']

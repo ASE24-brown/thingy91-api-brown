@@ -7,23 +7,26 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
+   app.control
+   app.model
+   app.mqtt
    app.routes
 
 Submodules
 ----------
 
-app.extensions module
----------------------
+app.database module
+-------------------
 
-.. automodule:: app.extensions
+.. automodule:: app.database
    :members:
    :undoc-members:
    :show-inheritance:
 
-app.models module
------------------
+app.influxdb\_client module
+---------------------------
 
-.. automodule:: app.models
+.. automodule:: app.influxdb_client
    :members:
    :undoc-members:
    :show-inheritance:

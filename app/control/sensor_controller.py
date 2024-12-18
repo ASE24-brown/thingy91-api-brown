@@ -7,9 +7,7 @@ from app.model.device import Device
 from app.model.sensor_data import SensorData
 from app.model.user import User
 
-from app.models import SensorData
-from app.extensions import SessionLocal
-from app.models import User, Device
+from app.model import SensorData, Device, User
 from app.influxdb_client import write_api, query_api, INFLUXDB_BUCKET, INFLUXDB_ORG
 from influxdb_client import Point
 import asyncio
