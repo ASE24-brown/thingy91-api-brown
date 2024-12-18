@@ -9,15 +9,13 @@ from authlib.oauth2.rfc6749 import grants
 from authlib.oauth2.rfc6749.errors import OAuth2Error
 from authlib.oauth2.rfc6749.models import ClientMixin
 from dotenv import load_dotenv
+from .routes import oauth_bp
 
 load_dotenv()
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
-
-# Allow insecure transport for development
-os.environ['AUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 # Set the logging level based on an environment variable, default to INFO
 logging.basicConfig(level=logging.INFO)
@@ -297,79 +295,11 @@ def save_token(token, request):
     """
     logger.info(f"Saving token: {token}")
     #tokens[token['access_token']] = token
+    return token
 
-@app.route('/oauth/authorize', methods=['GET', 'POST'])
-def authorize():
-    """
-    Handle the authorization request without showing a form.
+from auth.routes import oauth_bp
 
-    Args:
-        request (Request): The request object.
-
-    Returns:
-        Response: A redirect response to the client with the authorization code.
-    """
-    client_id = request.args.get('client_id')
-    redirect_uri = request.args.get('redirect_uri')
-    scope = request.args.get('scope')
-    state = request.args.get('state')
-    response_type = request.args.get('response_type')
-
-    # Automatically generate an authorization code
-    code = str(uuid.uuid4())
-    authorization_codes[code] = AuthorizationCode(
-        code=code,
-        client_id=client_id,
-        redirect_uri=redirect_uri,
-        scope=scope,
-        state=state,
-    )
-
-    # Redirect to the client with the authorization code
-    return redirect(f"{redirect_uri}?code={code}&state={state}")
-
-
-@app.route('/oauth/token', methods=['POST'])
-def token():
-    """
-    Exchange authorization code for an access token.
-
-    Args:
-        request (Request): The request object.
-
-    Returns:
-        Response: A JSON response with the access token or an error message.
-    """
-    code = request.form.get('code')
-    client_id = request.form.get('client_id')
-    redirect_uri = request.form.get('redirect_uri')
-
-    logger.info(f"Token request received: code={code}, client_id={client_id}, redirect_uri={redirect_uri}")
-
-    # Validate the authorization code
-    if code not in authorization_codes:
-        logger.error("Invalid or expired authorization code.")
-        return jsonify({"error": "invalid_grant"}), 400
-
-    auth_code_data = authorization_codes.pop(code)  # Remove the code after use
-
-    # Validate client_id and redirect_uri
-    if auth_code_data.client_id != client_id or auth_code_data.redirect_uri != redirect_uri:
-        logger.error("Invalid client_id or redirect_uri.")
-        return jsonify({"error": "invalid_client"}), 400
-
-    # Generate an access token (and optionally a refresh token)
-    access_token = str(uuid.uuid4())
-    logger.info(f"Access token generated: {access_token}")
-
-    # Send the token response
-    return jsonify({
-        "access_token": access_token,
-        "token_type": "Bearer",
-        "expires_in": 3600,  # Token expiry in seconds
-        "scope": auth_code_data.scope,
-    })
-
+app.register_blueprint(oauth_bp)
 
 authorization.save_token = save_token
 authorization.query_client = query_client
