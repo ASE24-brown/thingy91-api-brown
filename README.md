@@ -90,6 +90,22 @@ Before you begin, ensure you have met the following requirements:
    ```sh
    python run.py
    ```
+## Documentations
+
+To access Swagger Documentations
+   ```sh
+  http://localhost:8000/api/v1/doc
+   ```
+
+To access Sphinx Documentations
+
+   ```sh
+  http://localhost:8000/docs/index.html
+   ```
+
+
+
+
 
 ## Technologies Used
    ```sh
