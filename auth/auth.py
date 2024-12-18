@@ -22,12 +22,13 @@ class OAuth2Session(aiohttp.ClientSession):
         """
         Initialize the OAuth2Session with the given parameters.
 
-        :param client_id: The client ID for the OAuth2 application.
-        :param client_secret: The client secret for the OAuth2 application.
-        :param authorization_base_url: The base URL for the authorization endpoint.
-        :param token_url: The URL for the token endpoint.
-        :param redirect_uri: The redirect URI for the OAuth2 application.
-        :param kwargs: Additional keyword arguments to pass to the aiohttp.ClientSession.
+        Args:
+            client_id (str): The client ID for the OAuth2 application.
+            client_secret (str): The client secret for the OAuth2 application.
+            authorization_base_url (str): The base URL for the authorization endpoint.
+            token_url (str): The URL for the token endpoint.
+            redirect_uri (str): The redirect URI for the OAuth2 application.
+            kwargs: Additional keyword arguments to pass to the aiohttp.ClientSession.
         """
         super().__init__(**kwargs)
         self.client_id = client_id
@@ -41,8 +42,11 @@ class OAuth2Session(aiohttp.ClientSession):
         """
         Generate a JWT token for the OAuth2 application.
         
-        :param client_id: The client ID for the OAuth2 application.
-        :return: The JWT token as a string.
+        Args:
+            client_id (str): The client ID for the OAuth2 application.
+        
+        Returns:
+            str: The JWT token as a string.
         """
         payload = {
             'client_id': self.client_id,
@@ -55,8 +59,11 @@ class OAuth2Session(aiohttp.ClientSession):
         """
         Fetch the OAuth2 token using the provided authorization code.
 
-        :param code: The authorization code received from the authorization server.
-        :return: The token response as a dictionary.
+        Args:
+            code (str): The authorization code received from the authorization server.
+        
+        Returns:
+            dict: The token response as a dictionary.
         """
         try:
             token_url, headers, body = self.client.prepare_token_request(
@@ -83,7 +90,8 @@ class OAuth2Session(aiohttp.ClientSession):
         """
         Generate the authorization URL for the OAuth2 application.
 
-        :return: The authorization URL as a string.
+        Returns:
+            str: The authorization URL as a string.
         """
         # Disable HTTPS check for development
         self.client._insecure_transport = True

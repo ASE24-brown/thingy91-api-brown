@@ -7,6 +7,7 @@ def setup_auth_routes(app):
     
     Args:
         app (aiohttp.web.Application): The aiohttp application instance.
+        
     Routes:
         - POST /register/: Registers a new user.
         - POST /login/: Logs in a user.

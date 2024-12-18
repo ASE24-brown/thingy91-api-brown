@@ -1,15 +1,11 @@
 import os
 import json
 from aiohttp import web
-from .extensions import setup_db
+from .database import setup_db
 from .routes import setup_routes
 from aiohttp_swagger import setup_swagger
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from .control.device_controller import check_device_status
-from datetime import datetime, timedelta
-from sqlalchemy.future import select
-from .models import Device
-import logging
 import pathlib
 
 
@@ -28,6 +24,7 @@ async def init_app():
     Returns: 
         app (aiohttp.web.Application): The aiohttp application instance.
     """
+
     app = web.Application()
     await setup_db(app)
     setup_routes(app)

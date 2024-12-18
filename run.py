@@ -1,12 +1,10 @@
-from app import init_app
-from aiohttp import web
 import asyncio
 import nest_asyncio
-from mqtt import start_mqtt_listener
-from config import CLIENT_ID, CLIENT_SECRET, AUTHORIZATION_BASE_URL, TOKEN_URL, REDIRECT_URI
-from auth import OAuth2Session
 import os
 import logging
+from app import init_app
+from aiohttp import web
+from app.mqtt import start_mqtt_listener
 
 log_level = os.getenv('LOG_LEVEL', 'INFO').upper()
 logging.basicConfig(level=log_level)

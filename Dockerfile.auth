@@ -17,4 +17,4 @@ ENV PYTHONPATH=/thingy91-api-brown
 
 EXPOSE 8001
 
-CMD ["python", "auth/oauth2_server.py"]
+CMD ["python", "-m", "auth.oauth2_server"]

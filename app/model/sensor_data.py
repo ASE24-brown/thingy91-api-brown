@@ -1,9 +1,10 @@
 from sqlalchemy import Column, Integer, Boolean, String, ForeignKey
-from app.extensions import Base
+from app.database import Base
 from sqlalchemy.orm import relationship
 
 class SensorData(Base):
     __tablename__ = 'sensordata'
+    __table_args__ = {'extend_existing': True} 
 
     id = Column(Integer, primary_key=True, index=True) # primary key of the table
     appId = Column(String, index=True) # appId of the sensor

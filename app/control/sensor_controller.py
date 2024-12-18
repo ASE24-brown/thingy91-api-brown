@@ -2,6 +2,11 @@ from aiohttp import web
 from sqlalchemy.future import select
 from sqlalchemy.sql.expression import delete
 from sqlalchemy.exc import IntegrityError
+from app.database import SessionLocal
+from app.model.device import Device
+from app.model.sensor_data import SensorData
+from app.model.user import User
+
 from app.models import SensorData
 from app.extensions import SessionLocal
 from app.models import User, Device
@@ -16,12 +21,16 @@ from app.influxdb_client import INFLUXDB_ORG, INFLUXDB_BUCKET, query_api
 
 async def list_sensor_data(request):
     """
-    Retrieves a list of all sensor data from the database.
-    
-    params:
-      request: The request object.
-    return:
-      A JSON response containing a list of sensor data.
+    Retrieve a list of all sensor data from the database.
+
+    Args:
+    request: The request object.
+
+    Returns:
+    JSON: A JSON response containing a list of sensor data.
+
+    Raises:
+    Exception: If there is an error while retrieving sensor data.
     """
     async with SessionLocal() as session:
         async with session.begin():
@@ -39,11 +48,12 @@ async def list_sensor_data(request):
 async def clear_sensor_data(request):
     """
     Deletes all sensor data from the database.
-    
-    params:
-      request: The request object.
-    return:
-      A response indicating the success of the operation.
+
+    Args:
+        request: The request object.
+
+    Returns:
+        web.Response: A response indicating the success of the operation.
     """
     async with SessionLocal() as session:
         async with session.begin():
@@ -54,11 +64,12 @@ async def clear_sensor_data(request):
 async def add_sensor_data(request):
     """
     Creates new sensor data in the database.
-    
-    params:
-      request: The request object containing sensor data.
-    return:
-      A JSON response with the created sensor data or an error message.
+
+    Args:
+        request: The request object containing sensor data.
+
+    Returns:
+        web.json_response: A JSON response with the created sensor data or an error message.
     """
     data = await request.json()
     user_id = data.get('user_id')  # user_id is now optional
@@ -96,11 +107,12 @@ async def add_sensor_data(request):
 async def show_sensor_data(request):
     """
     Retrieves specific sensor data from the database by its ID.
-    
-    params:
-      request: The request object containing the sensor data ID.
-    return:
-      A JSON response with the sensor data details or a 404 error if the sensor data is not found.
+
+    Args:
+        request: The request object containing the sensor data ID.
+
+    Returns:
+        web.json_response: A JSON response with the sensor data details or a 404 error if the sensor data is not found.
     """
     sensor_id = request.match_info['id']
     async with SessionLocal() as session:
@@ -120,11 +132,12 @@ async def show_sensor_data(request):
 async def update_sensor_data(request):
     """
     Updates specific sensor data in the database by its ID.
-    
-    params:
-      request: The request object containing sensor data.
-    return:
-      A JSON response with the updated sensor data details or a 404 error if the sensor data is not found.
+
+    Args:
+        request: The request object containing sensor data.
+
+    Returns:
+        web.json_response: A JSON response with the updated sensor data details or a 404 error if the sensor data is not found.
     """
     sensor_id = request.match_info['id']
     data = await request.json()
@@ -148,11 +161,12 @@ async def update_sensor_data(request):
 async def remove_sensor_data(request):
     """
     Deletes specific sensor data from the database by its ID.
-    
-    params:
-      request: The request object containing sensor data.
-    return:
-      A JSON response with the updated sensor data details or a 404 error if the sensor data is not found.
+
+    Args:
+        request: The request object containing sensor data.
+
+    Returns:
+        web.Response: A response indicating the success of the operation or a 404 error if the sensor data is not found.
     """
     sensor_id = request.match_info['id']
     async with SessionLocal() as session:
@@ -167,11 +181,12 @@ async def remove_sensor_data(request):
 async def get_sensor_data(request):
     """
     Retrieves all sensor data from the database.
-    
-    params:
-      request: The request object.
-    return:
-      A JSON response containing a list of sensor data.
+
+    Args:
+        request: The request object.
+
+    Returns:
+        web.json_response: A JSON response containing a list of sensor data.
     """
     async with SessionLocal() as db:  # Use async context manager
         # Use an async query to fetch all sensor data
@@ -193,8 +208,10 @@ async def get_sensor_data(request):
 async def get_all_sensor_data_for_user(request):
     """
     Get all sensor data for all devices belonging to a user.
+
     Args:
         request (web.Request): The request object containing the user ID.
+        
     Returns:
         web.Response: A JSON response with the sensor data for the specified user.
     """

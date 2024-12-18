@@ -589,6 +589,601 @@
             }
           }
         }
+      },
+      "/api/sensor-data":{
+        "get": {
+          "summary": "Retrieve all sensor data",
+          "description": "Retrieves all sensor data from the database.",
+          "tags": ["SensorData"],
+          "responses": {
+            "200": {
+              "description": "A list of sensor data",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "appId": {
+                          "type": "string"
+                        },
+                        "data": {
+                          "type": "string"
+                        },
+                        "messageType": {
+                          "type": "string"
+                        },
+                        "timestamp": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/sensor_data/user/{user_id}": {
+        "get": {
+          "summary": "Get all sensor data for a user",
+          "description": "Get all sensor data for all devices belonging to a user.",
+          "tags": ["SensorData"],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "user_id",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "A list of sensor data for the user",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "data": {
+                          "type": "string"
+                        },
+                        "appID": {
+                          "type": "string"
+                        },
+                        "ts": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "device_id": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "User ID is required",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "User not found",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/devices/{device_id}/data/": {
+      "get": {
+        "summary": "Get all sensor data for a device",
+        "description": "Get all sensor data for a device.",
+        "tags": ["SensorData"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "device_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of sensor data for the device",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "data": {
+                        "type": "string"
+                      },
+                      "appID": {
+                        "type": "string"
+                      },
+                      "ts": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Device ID is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      },
+      "/users/{user_id}/devices/{device_id}/data/": {
+        "get": {
+          "summary": "Get all sensor data for a specific device belonging to a user",
+          "description": "Get all sensor data for a specific device belonging to a user.",
+          "tags": ["SensorData"],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "user_id",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "in": "path",
+              "name": "device_id",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "A list of sensor data for the device and user",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "data": {
+                          "type": "string"
+                        },
+                        "appID": {
+                          "type": "string"
+                        },
+                        "ts": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "User ID and Device ID are required",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Device not found or does not belong to the user",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/devices/status/": {
+        "get": {
+          "summary": "Get the status of all devices",
+          "description": "Get the status of all devices.",
+          "tags": ["Devices"],
+          "responses": {
+            "200": {
+              "description": "A list of device statuses",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "device_id": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "last_updated": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "No devices found",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal server error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/devices/{device_id}/status/": {
+        "get": {
+          "summary": "Get the status of a device",
+          "description": "Get the status of a device.",
+          "tags": ["Devices"],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "device_id",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "The status of the device",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "device_id": {
+                        "type": "string"
+                      },
+                      "status": {
+                        "type": "string"
+                      },
+                      "last_updated": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Device ID is required",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Device not found",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal server error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/associate-device-from-user/": {
+  "post": {
+    "summary": "Associate a user to a device",
+    "description": "Associates a user to a device based on the provided user_id and device_id in the request.",
+    "tags": ["Devices"],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "user_id": {
+                "type": "string"
+              },
+              "device_id": {
+                "type": "string"
+              }
+            },
+            "example": {
+              "user_id": "3",
+              "device_id": "2"
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "Device associated with user successfully",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "User ID and Device ID are required",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "User or Device not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal server error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+},
+      "/disassociate-device-from-user/": {
+        "post": {
+          "summary": "Disassociate a device from a user",
+          "description": "Disassociates a device from a user based on the provided user_id in the request.",
+          "tags": ["Devices"],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user_id": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "example": {
+                "user_id": "3"
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Device disassociated from user successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "User ID is required",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "User not found",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal server error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
 }

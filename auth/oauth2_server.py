@@ -9,15 +9,13 @@ from authlib.oauth2.rfc6749 import grants
 from authlib.oauth2.rfc6749.errors import OAuth2Error
 from authlib.oauth2.rfc6749.models import ClientMixin
 from dotenv import load_dotenv
+from .routes import oauth_bp
 
 load_dotenv()
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
-
-# Allow insecure transport for development
-os.environ['AUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 # Set the logging level based on an environment variable, default to INFO
 logging.basicConfig(level=logging.INFO)
@@ -44,12 +42,13 @@ class Client(ClientMixin):
         """
         Initialize the Client with the given parameters.
 
-        :param client_id: The client ID for the OAuth2 application.
-        :param client_secret: The client secret for the OAuth2 application.
-        :param redirect_uris: List of allowed redirect URIs.
-        :param scope: The scope of the OAuth2 application.
-        :param token_endpoint_auth_method: The authentication method for the token endpoint.
-        :param grant_types: List of allowed grant types.
+        Args:
+            client_id (str): The client ID for the OAuth2 application.
+            client_secret (str): The client secret for the OAuth2 application.
+            redirect_uris (list): List of allowed redirect URIs.
+            scope (str): The scope of the OAuth2 application.
+            token_endpoint_auth_method (str): The authentication method for the token endpoint.
+            grant_types (list): List of allowed grant types.
         """        
         self.id = client_id
         self.client_id = client_id
@@ -62,54 +61,100 @@ class Client(ClientMixin):
     def get_client_id(self):
         """
         Get the client ID.
+
+        Returns:
+            str: The client ID.
         """
         return self.client_id
 
     def get_default_redirect_uri(self):
         """
         Get the default redirect URI.
+
+        Returns:
+            str: The default redirect URI.
         """
         return self.redirect_uris[0]
 
     def get_allowed_scope(self, scope):
         """
         Get the allowed scope.
+
+        Args:
+            scope (str): The requested scope.
+
+        Returns:
+            str: The allowed scope.
         """
         return scope
 
     def check_client_secret(self, client_secret):
         """
         Check if the provided client_secret matches the stored one.
+
+        Args:
+            client_secret (str): The client secret to check.
+
+        Returns:
+            bool: True if the client secret matches, False otherwise.
         """
         return self.client_secret == client_secret
 
     def check_redirect_uri(self, redirect_uri):
         """
         Check if the provided redirect_uri is allowed.
+
+        Args:
+            redirect_uri (str): The redirect URI to check.
+
+        Returns:
+            bool: True if the redirect URI is allowed, False otherwise.
         """
         return redirect_uri in self.redirect_uris
 
     def check_response_type(self, response_type):
         """
         Check if the provided response_type is allowed.
+
+        Args:
+            response_type (str): The response type to check.
+
+        Returns:
+            bool: True if the response type is allowed, False otherwise.
         """
         return response_type == 'code'
 
     def check_grant_type(self, grant_type):
         """
         Check if the provided grant_type is allowed.
+
+        Args:
+            grant_type (str): The grant type to check.
+
+        Returns:
+            bool: True if the grant type is allowed, False otherwise.
         """
         return grant_type in self.grant_types
     
     def check_endpoint_auth_method(self, method, endpoint):
         """
         Check if the provided endpoint authentication method is allowed.
+
+        Args:
+            method (str): The authentication method to check.
+            endpoint (str): The endpoint to check.
+
+        Returns:
+            bool: True if the authentication method is allowed, False otherwise.
         """
         return self.token_endpoint_auth_method == method
     
     def get_redirect_uri(self):
         """
         Get the redirect URI.
+
+        Returns:
+            str: The redirect URI.
         """
         return self.redirect_uris[0]
     
@@ -126,9 +171,12 @@ def query_client(client_id, client_secret=None):
     """
     Query the client based on client_id and optionally client_secret.
 
-    :param client_id: The client ID to query.
-    :param client_secret: The client secret to verify.
-    :return: The Client object if found and verified, otherwise None.
+    Args:
+        client_id (str): The client ID to query.
+        client_secret (str, optional): The client secret to verify.
+
+    Returns:
+        Client: The Client object if found and verified, otherwise None.
     """
     logger.info(f"Querying client with client_id={client_id}")
     client = clients.get(client_id)
@@ -142,13 +190,14 @@ def query_client(client_id, client_secret=None):
 
 class AuthorizationCode:
     """
-    Initialize the AuthorizationCode with the given parameters.
+    Represents an OAuth2 authorization code.
 
-    :param code: The authorization code.
-    :param client_id: The client ID associated with the code.
-    :param redirect_uri: The redirect URI associated with the code.
-    :param scope: The scope associated with the code.
-    :param state: The state associated with the code.
+    Args:
+        code (str): The authorization code.
+        client_id (str): The client ID associated with the code.
+        redirect_uri (str): The redirect URI associated with the code.
+        scope (str): The scope associated with the code.
+        state (str): The state associated with the code.
     """
     def __init__(self, code, client_id, redirect_uri, scope, state):
         """
@@ -163,12 +212,18 @@ class AuthorizationCode:
     def get_redirect_uri(self):
         """
         Get the redirect URI.
+
+        Returns:
+            str: The redirect URI.
         """
         return self.redirect_uri
     
     def get_scope(self):
         """
         Get the scope.
+
+        Returns:
+            str: The scope.
         """
         return self.scope
 
@@ -178,8 +233,9 @@ class AuthorizationCodeGrant(grants.AuthorizationCodeGrant):
         """
         Save the authorization code.
 
-        :param code: The authorization code to save.
-        :param request: The request object.
+        Args:
+            code (dict): The authorization code to save.
+            request (Request): The request object.
         """
         logger.info(f"Saving authorization code: {code}")
         authorization_code = AuthorizationCode(
@@ -195,9 +251,12 @@ class AuthorizationCodeGrant(grants.AuthorizationCodeGrant):
         """
         Query the authorization code.
 
-        :param code: The authorization code to query.
-        :param client: The client associated with the code.
-        :return: The authorization code if found, otherwise None.
+        Args:
+            code (str): The authorization code to query.
+            client (Client): The client associated with the code.
+
+        Returns:
+            AuthorizationCode: The authorization code if found, otherwise None.
         """
         logger.info(f"Querying authorization code: {code}")
         return authorization_codes.get(code)
@@ -206,7 +265,8 @@ class AuthorizationCodeGrant(grants.AuthorizationCodeGrant):
         """
         Delete the authorization code.
 
-        :param authorization_code: The authorization code to delete.
+        Args:
+            authorization_code (AuthorizationCode): The authorization code to delete.
         """
         logger.info(f"Deleting authorization code: {authorization_code}")
         authorization_codes.pop(authorization_code.code, None)
@@ -215,8 +275,11 @@ class AuthorizationCodeGrant(grants.AuthorizationCodeGrant):
         """
         Authenticate the user with the authorization code.
 
-        :param authorization_code: The authorization code to authenticate.
-        :return: The user information.
+        Args:
+            authorization_code (AuthorizationCode): The authorization code to authenticate.
+
+        Returns:
+            dict: The user information.
         """
         logger.info(f"Authenticating user with authorization code: {authorization_code}")
         return {'user_id': 'user'}
@@ -226,72 +289,17 @@ def save_token(token, request):
     """
     Save the token.
 
-    :param token: The token to save.
-    :param request: The request object.
+    Args:
+        token (dict): The token to save.
+        request (Request): The request object.
     """
     logger.info(f"Saving token: {token}")
     #tokens[token['access_token']] = token
+    return token
 
-@app.route('/oauth/authorize', methods=['GET', 'POST'])
-def authorize():
-    """
-    Handle the authorization request without showing a form.
-    """
-    client_id = request.args.get('client_id')
-    redirect_uri = request.args.get('redirect_uri')
-    scope = request.args.get('scope')
-    state = request.args.get('state')
-    response_type = request.args.get('response_type')
+from auth.routes import oauth_bp
 
-    # Automatically generate an authorization code
-    code = str(uuid.uuid4())
-    authorization_codes[code] = AuthorizationCode(
-        code=code,
-        client_id=client_id,
-        redirect_uri=redirect_uri,
-        scope=scope,
-        state=state,
-    )
-
-    # Redirect to the client with the authorization code
-    return redirect(f"{redirect_uri}?code={code}&state={state}")
-
-
-@app.route('/oauth/token', methods=['POST'])
-def token():
-    """
-    Exchange authorization code for an access token.
-    """
-    code = request.form.get('code')
-    client_id = request.form.get('client_id')
-    redirect_uri = request.form.get('redirect_uri')
-
-    logger.info(f"Token request received: code={code}, client_id={client_id}, redirect_uri={redirect_uri}")
-
-    # Validate the authorization code
-    if code not in authorization_codes:
-        logger.error("Invalid or expired authorization code.")
-        return jsonify({"error": "invalid_grant"}), 400
-
-    auth_code_data = authorization_codes.pop(code)  # Remove the code after use
-
-    # Validate client_id and redirect_uri
-    if auth_code_data.client_id != client_id or auth_code_data.redirect_uri != redirect_uri:
-        logger.error("Invalid client_id or redirect_uri.")
-        return jsonify({"error": "invalid_client"}), 400
-
-    # Generate an access token (and optionally a refresh token)
-    access_token = str(uuid.uuid4())
-    logger.info(f"Access token generated: {access_token}")
-
-    # Send the token response
-    return jsonify({
-        "access_token": access_token,
-        "token_type": "Bearer",
-        "expires_in": 3600,  # Token expiry in seconds
-        "scope": auth_code_data.scope,
-    })
-
+app.register_blueprint(oauth_bp)
 
 authorization.save_token = save_token
 authorization.query_client = query_client

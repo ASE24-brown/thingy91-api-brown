@@ -7,10 +7,14 @@ def setup_device_routes(app):
     
     Args:
         app (aiohttp.web.Application): The aiohttp application instance.
+        
     Routes:
         - GET /devices/{device_id}/data: Retrieves all sensor data for a specific device.
         - GET /devices/{device_id}/status: Retrieves the status of a specific device.
         - GET /devices/status: Retrieves the status of all devices.
+        - POST /associate-user-to-device: Associates a user to a device.
+        - POST /disassociate-device-from-user: Disassociates a device from a user.
+        - GET /users/{user_id}/devices/{device_id}/data: Retrieves all sensor data for a specific device belonging to a user.
     """
     app.router.add_get('/devices/{device_id}/status', get_device_status)
     app.router.add_get('/devices/status', get_all_device_statuses)
