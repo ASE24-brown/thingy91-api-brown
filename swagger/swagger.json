@@ -1007,94 +1007,98 @@
           }
         }
       },
-      "/devices/associate-device-from-user/": {
-        "post": {
-          "summary": "Associate a user to a device",
-          "description": "Associates a user to a device based on the provided user_id and device_id in the request.",
-          "tags": ["Devices"],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "user_id": {
-                      "type": "string"
-                    },
-                    "device_id": {
-                      "type": "string"
-                    }
-                  }
-                }
+      "/associate-device-from-user/": {
+  "post": {
+    "summary": "Associate a user to a device",
+    "description": "Associates a user to a device based on the provided user_id and device_id in the request.",
+    "tags": ["Devices"],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "user_id": {
+                "type": "string"
+              },
+              "device_id": {
+                "type": "string"
               }
+            },
+            "example": {
+              "user_id": "3",
+              "device_id": "2"
             }
-          },
-          "responses": {
-            "200": {
-              "description": "Device associated with user successfully",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "message": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "400": {
-              "description": "User ID and Device ID are required",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "error": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "User or Device not found",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "error": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "500": {
-              "description": "Internal server error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "error": {
-                        "type": "string"
-                      }
-                    }
-                  }
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "Device associated with user successfully",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
                 }
               }
             }
           }
         }
       },
-      "/devices/disassociate-device-from-user/": {
+      "400": {
+        "description": "User ID and Device ID are required",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "User or Device not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal server error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+},
+      "/disassociate-device-from-user/": {
         "post": {
           "summary": "Disassociate a device from a user",
           "description": "Disassociates a device from a user based on the provided user_id in the request.",
@@ -1111,6 +1115,9 @@
                     }
                   }
                 }
+              },
+              "example": {
+                "user_id": "3"
               }
             }
           },
