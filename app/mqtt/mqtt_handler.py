@@ -8,6 +8,9 @@ from app.model.device import Device
 from app.model.sensor_data import SensorData
 from app.model.user import User
 from datetime import datetime
+from app.influxdb_client import write_api, INFLUXDB_BUCKET, INFLUXDB_ORG
+from influxdb_client import Point
+
 
 MQTT_BROKER = "163.172.151.151"
 MQTT_PORT = 1890
@@ -106,6 +109,19 @@ async def insert_data(session: AsyncSession, data: dict, device_id: str):
 
         logging.debug("Inserting sensor data...")
         session.add(sensor_data)
+
+        # Save to InfluxDB
+        point = Point("sensor_data") \
+            .tag("device_id", device.id) \
+            .tag("user_id", device.user_id) \
+            .tag("appId", appId) \
+            .tag("messageType", messageType) \
+            .field("data", float(data_field)) \
+            .field("ts", int(ts)) \
+            .time(datetime.utcnow())
+
+        logging.debug("Writing data to InfluxDB...")
+        write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, record=point)
 
         # Update device status and last_updated
         device.status = 1
