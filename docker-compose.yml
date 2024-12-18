@@ -8,10 +8,15 @@ services:
     volumes:
       - ./data:/thingy91-api-brown/data
     depends_on:
+      - influxdb
       - auth_server
     environment:
-      LOG_LEVEL: INFO
-      database_url: sqlite+aiosqlite:///data/thingy91.db
+      LOG_LEVEL: ${LOG_LEVEL}
+      database_url: ${DATABASE_URL}
+      INFLUXDB_URL: ${INFLUXDB_URL}
+      INFLUXDB_TOKEN: ${INFLUXDB_TOKEN}
+      INFLUXDB_ORG: ${INFLUXDB_ORG}
+      INFLUXDB_BUCKET: ${INFLUXDB_BUCKET}
     networks:
       - shared_network
 
@@ -22,7 +27,28 @@ services:
     ports:
       - "8001:8001"
     environment:
-      LOG_LEVEL: INFO
+      LOG_LEVEL: ${LOG_LEVEL}
+    networks:
+      - shared_network
+
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    volumes:
+      - ./influxdb-data:/var/lib/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=${DOCKER_INFLUXDB_INIT_MODE}
+      - DOCKER_INFLUXDB_INIT_USERNAME=${DOCKER_INFLUXDB_INIT_USERNAME}
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${DOCKER_INFLUXDB_INIT_PASSWORD}
+      - DOCKER_INFLUXDB_INIT_ORG=${DOCKER_INFLUXDB_INIT_ORG}
+      - DOCKER_INFLUXDB_INIT_BUCKET=${DOCKER_INFLUXDB_INIT_BUCKET}
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${DOCKER_INFLUXDB_INIT_ADMIN_TOKEN}
+      - INFLUXDB_HTTP_CORS_ENABLED=${INFLUXDB_HTTP_CORS_ENABLED}
+      - INFLUXDB_HTTP_CORS_ALLOW_ORIGIN=${INFLUXDB_HTTP_CORS_ALLOW_ORIGIN}
+      - INFLUXDB_HTTP_CORS_ALLOW_METHODS=${INFLUXDB_HTTP_CORS_ALLOW_METHODS}
+      - INFLUXDB_HTTP_CORS_ALLOW_HEADERS=${INFLUXDB_HTTP_CORS_ALLOW_HEADERS}
     networks:
       - shared_network
 
